@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         爱聊 (WeChat.ai)
 // @namespace    wechat.ai
-// @version      1.2.0
+// @version      1.2.1
 // @description  微信风格的豆包与 DeepSeek 实时群聊脚本
 // @match        https://www.doubao.com/*
 // @match        https://chat.deepseek.com/*
@@ -15,6 +15,7 @@
 (function () {
     'use strict';
 
+    const VERSION = '1.2.1';
     const isDoubao = location.hostname.includes('doubao.com');
     const myRole = isDoubao ? 'doubao' : 'deepseek';
     const myLabel = isDoubao ? '豆包' : 'DeepSeek';
@@ -27,11 +28,23 @@
         USER: 'wechat_ai_user_msg',
         BG: 'wechat_ai_bg',
         SESS: 'wechat_ai_session',
-        THINKING: 'wechat_ai_thinking'
+        THINKING: 'wechat_ai_thinking',
+        CUSTOM_CSS: 'wechat_ai_custom_css',
+        HB: 'wechat_ai_hb_',
+        LAST_OPEN: 'wechat_ai_last_open_'
     };
+    
+    const LEI_JUN_QUOTES = [
+        "专注、极致、口碑、快。",
+        "站在风口上，猪都能飞起来。",
+        "找人不是三顾茅庐，而是三十次顾茅庐。",
+        "天下武功，唯快不破。",
+        "厚道的人运气不会太差。"
+    ];
+
     const MAX_ROUNDS = 1;
     const MAX_CHARS = 100;
-    const ANIM_MS = 220;
+    const ANIM_MS = 280;
     const MIN_SNAP_PX = 15;
     const IMG_ACCEPT = 'image/jpeg,image/png,image/webp,image/gif,image/bmp,image/heic,image/heif,image/*';
 
@@ -70,7 +83,6 @@
     
     const pushMessage = (who, text, images, extra) => {
         const msgs = getMessages();
-        
         if (who !== 'user' && who !== 'system' && msgs.length > 0) {
             const last = msgs[msgs.length - 1];
             if (last.who === who && Date.now() - last.ts < 13500) {
@@ -86,12 +98,10 @@
                 return;
             }
         }
-
         if (who === 'system' && msgs.length > 0) {
             const last = msgs[msgs.length - 1];
             if (last.who === 'system' && last.text === text && Date.now() - last.ts < 5000) return;
         }
-        
         msgs.push(Object.assign({ who, text: text || '', images: images || [], ts: Date.now() + Math.random() }, extra || {}));
         GM_setValue(K.MSGS, JSON.stringify(msgs));
     };
@@ -280,10 +290,8 @@
         for (const sel of selectors) {
             const els = document.querySelectorAll(sel);
             if (!els.length) continue;
-            
             const el = els[els.length - 1];
             const clone = el.cloneNode(true);
-            
             clone.querySelectorAll('button, svg, [class*="copy"], [class*="download"], [class*="banner"], [class*="header"]').forEach(n => n.remove());
             
             const pres = [...clone.querySelectorAll('pre')];
@@ -291,13 +299,11 @@
                 const codeEl = pre.querySelector('code');
                 let codeText = codeEl ? codeEl.innerText : pre.innerText;
                 let lang = 'text';
-                
                 let parent = pre.parentElement;
                 if (parent) {
                     const langMatch = parent.innerText.match(/^(python|javascript|java|cpp|c|go|rust|php|sql|html|css|bash|shell|json|typescript|ts|js)\b/i);
                     if (langMatch) lang = langMatch[1].toLowerCase();
                 }
-                
                 if (lang === 'text') {
                     if (codeText.includes('print(') || codeText.includes('def ') || codeText.includes('import ')) lang = 'python';
                     else if (codeText.includes('function') || codeText.includes('const ') || codeText.includes('let ') || codeText.includes('console.log')) lang = 'javascript';
@@ -305,18 +311,12 @@
                     else if (codeText.includes('public class') || codeText.includes('public static void')) lang = 'java';
                     else if (codeText.includes('<html>') || codeText.includes('<div>')) lang = 'html';
                 }
-                
                 const mdCode = `\n\`\`\`${lang}\n${codeText}\n\`\`\`\n`;
-                const textNode = document.createTextNode(mdCode);
-                pre.parentNode.replaceChild(textNode, pre);
+                pre.parentNode.replaceChild(document.createTextNode(mdCode), pre);
             });
 
             let t = (clone.innerText || '').trim()
-                .replace(/\n?复制\n?下载\n?/g, '\n')
-                .replace(/\n?复制\n?/g, '\n')
-                .replace(/\n?下载\n?/g, '\n')
-                .replace(/\n{3,}/g, '\n\n');
-                
+                .replace(/\n?复制\n?下载\n?/g, '\n').replace(/\n?复制\n?/g, '\n').replace(/\n?下载\n?/g, '\n').replace(/\n{3,}/g, '\n\n');
             if (t) return t;
         }
         return '';
@@ -356,11 +356,9 @@
 
     function getReplyData() {
         let text = readLatest(isDoubao ? ['[data-testid="message_text_content"]', '[class*="message-content"]', '[class*="markdown-body"]'] : ['div[class*="ds-markdown"]', 'div[class*="markdown"]']);
-        
         if (text && (text.includes('系统提示：当前是一个多AI群聊') || text.includes('User：'))) {
             return { text: '', images: [] };
         }
-
         let images = [];
         if (isDoubao) {
             const els = document.querySelectorAll('[data-testid="message_text_content"]');
@@ -402,10 +400,13 @@
         .rh-se { bottom: -4px; right: -4px; width: 12px; height: 12px; cursor: se-resize; }
         .rh-sw { bottom: -4px; left: -4px; width: 12px; height: 12px; cursor: sw-resize; }
         
-        #wechat-ai-dragbar { height: 28px; background: #ebebeb; display: flex; align-items: center; padding: 0 4px 0 12px; font-size: 11px; color: #666 !important; cursor: move; user-select: none; border-bottom: 1px solid #ddd; flex-shrink: 0; touch-action: none; border-radius: 12px 12px 0 0; }
-        #wechat-ai-dragzone { flex: 1; text-align: center; pointer-events: none; color: #999 !important; font-weight: 500; }
-        #wechat-ai-winbtns { display: flex; gap: 2px; flex-shrink: 0; }
+        #wechat-ai-dragbar { height: 28px; background: #ebebeb; display: flex; align-items: center; padding: 0 4px 0 12px; font-size: 11px; color: #666 !important; cursor: pointer; user-select: none; border-bottom: 1px solid #ddd; flex-shrink: 0; touch-action: none; border-radius: 12px 12px 0 0; }
         
+        #wechat-ai-dragzone { flex: 1; text-align: center; pointer-events: auto; color: #999 !important; font-weight: 500; position: relative; }
+        #wechat-ai-dragzone::after { content: 'WeChat.ai ${VERSION}'; position: absolute; top: 24px; left: 50%; transform: translateX(-50%) translateY(-10px); background: rgba(30,30,30,0.85); color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 11px; white-space: nowrap; pointer-events: none; opacity: 0; transition: all 0.2s ease; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+        #wechat-ai-dragzone:hover::after { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        #wechat-ai-winbtns { display: flex; gap: 2px; flex-shrink: 0; cursor: default; }
         .wechat-ai-winbtn { position: relative; width: 32px; height: 24px; border: none; background: transparent; color: #777 !important; font-size: 14px; cursor: pointer; border-radius: 4px; padding: 0; line-height: 1; font-family: inherit; touch-action: manipulation; transition: all 0.15s ease; }
         .wechat-ai-winbtn:hover { background: rgba(0,0,0,0.08); color: #222 !important; }
         .wechat-ai-winbtn:active { transform: scale(0.9); }
@@ -414,8 +415,9 @@
 
         #wechat-ai-messages { position: relative; flex: 1 1 0; min-height: 0; height: 0; overflow-y: auto; padding: 10px; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; background-size: cover; background-position: center; background-repeat: no-repeat; }
         
-        #wechat-ai-pc-refresh-tip { position: absolute; top: 0; left: 0; right: 0; height: 32px; background: rgba(7,193,96,0.9); color: #fff !important; font-size: 12px; display: flex; align-items: center; justify-content: center; transform: translateY(-40px); transition: transform 0.25s cubic-bezier(0.4,0,0.2,1), background 0.2s; z-index: 15; font-weight: 500; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        #wechat-ai-pc-refresh-tip.show { transform: translateY(0); }
+        #wechat-ai-pc-refresh-tip { position: absolute; top: 0; left: 50%; transform: translateX(-50%) translateY(-40px); height: 28px; background: #07c160; color: #fff !important; font-size: 12px; display: flex; align-items: center; justify-content: center; padding: 0 16px; border-radius: 0 0 12px 12px; z-index: 15; font-weight: 500; box-shadow: 0 4px 12px rgba(7,193,96,0.3); transition: transform 0.25s cubic-bezier(0.4,0,0.2,1), background 0.2s; }
+        #wechat-ai-pc-refresh-tip.show { transform: translateX(-50%) translateY(0); }
+        #wechat-ai-pc-refresh-tip.loading { background: #fff; color: #07c160 !important; border: 1px solid #07c160; border-top: none; }
 
         .wechat-ai-row { display: flex; align-items: flex-start; margin: 8px 0; gap: 8px; }
         .wechat-ai-row.wechat-ai-right { flex-direction: row-reverse; }
@@ -482,9 +484,50 @@
         .wechat-ai-code-block .hljs-comment, .wechat-ai-code-block .hljs-quote { color: #8b949e !important; }
         .wechat-ai-code-block .hljs-variable, .wechat-ai-code-block .hljs-template-variable, .wechat-ai-code-block .hljs-selector-class, .wechat-ai-code-block .hljs-selector-attr, .wechat-ai-code-block .hljs-selector-pseudo { color: #ffa657 !important; }
         .wechat-ai-code-block .hljs-params { color: #c9d1d9 !important; }
+
+        #wechat-ai-settings { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(250, 250, 250, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); z-index: 50; display: flex; flex-direction: column; border-radius: 12px; opacity: 0; pointer-events: none; transform: scale(0.98) translateY(10px); transition: opacity 0.25s cubic-bezier(0.4,0,0.2,1), transform 0.25s cubic-bezier(0.4,0,0.2,1); }
+        #wechat-ai-settings.show { opacity: 1; pointer-events: auto; transform: scale(1) translateY(0); }
+        
+        #wechat-ai-settings-header { height: 44px; background: transparent; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; border-bottom: 1px solid rgba(0,0,0,0.05); flex-shrink: 0; }
+        #wechat-ai-settings-header span { font-size: 15px; font-weight: 600; color: #333; font-family: -apple-system, sans-serif; letter-spacing: 0.5px; }
+        
+        #wechat-ai-settings-close { border: none; background: rgba(0,0,0,0.05); color: #666; width: 26px; height: 26px; border-radius: 50%; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        #wechat-ai-settings-close:hover { background: rgba(0,0,0,0.1); color: #000; }
+        #wechat-ai-settings-close:active { transform: scale(0.9); }
+        
+        #wechat-ai-settings-content { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 20px; }
+        
+        .settings-group { display: flex; flex-direction: column; gap: 10px; }
+        .settings-group h4 { margin: 0; font-size: 12px; color: #888; font-weight: 600; padding-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .settings-group textarea { width: 100%; height: 110px; border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.6); border-radius: 8px; padding: 10px; font-family: 'SF Mono', Consolas, monospace; font-size: 12px; color: #333; resize: none; box-sizing: border-box; outline: none; transition: border 0.2s, box-shadow 0.2s; line-height: 1.4; }
+        .settings-group textarea:focus { border-color: #07c160; background: #fff; box-shadow: 0 0 0 3px rgba(7,193,96,0.1); }
+        .settings-group textarea::placeholder { font-family: -apple-system, sans-serif; color: #aaa; }
+        
+        .settings-btn { border: none; background: #07c160; color: #fff; padding: 8px 16px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s; font-family: -apple-system, sans-serif; box-shadow: 0 2px 4px rgba(7,193,96,0.2); }
+        .settings-btn:active { transform: scale(0.96); box-shadow: none; }
+        .settings-btn:hover { background: #06ad56; }
+        .settings-btn.danger { background: #ff4d4f; box-shadow: 0 2px 4px rgba(255,77,79,0.2); }
+        .settings-btn.danger:hover { background: #e53935; }
+        .settings-btn.secondary { background: rgba(0,0,0,0.05); color: #333; box-shadow: none; }
+        .settings-btn.secondary:hover { background: rgba(0,0,0,0.08); }
+        
+        #wechat-ai-about { padding: 12px; background: rgba(255,255,255,0.5); border: 1px solid rgba(0,0,0,0.05); border-radius: 8px; font-size: 12px; color: #666; line-height: 1.6; cursor: pointer; user-select: none; transition: background 0.2s; font-family: -apple-system, sans-serif; }
+        #wechat-ai-about:hover { background: rgba(255,255,255,0.8); }
+
+        #wechat-ai-toast { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(20px) scale(0.95); background: rgba(40,40,40,0.9); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #fff; padding: 10px 20px; border-radius: 20px; font-size: 12px; white-space: nowrap; opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.4,0,0.2,1); z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.2); font-family: -apple-system, sans-serif; }
+        #wechat-ai-toast.show { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
     `);
 
     let state = 'normal', savedRect = null, rendered = 0, thinkingTimer = null, lastThinkingKey = '';
+    let customCss = GM_getValue(K.CUSTOM_CSS, '');
+
+    if (!document.getElementById('wechat-ai-custom-style')) {
+        const style = document.createElement('style');
+        style.id = 'wechat-ai-custom-style';
+        style.textContent = customCss;
+        document.head.appendChild(style);
+    }
 
     function readRect(el) { const r = el.getBoundingClientRect(); return { left: r.left, top: r.top, width: r.width, height: r.height }; }
     function applyRect(el, r, animate) {
@@ -503,7 +546,6 @@
         if (!min || !max) return;
         min.textContent = (state === 'min' || state === 'edge-l' || state === 'edge-r') ? '▣' : '—';
         max.textContent = state === 'max' ? '❐' : '□';
-        
         min.setAttribute('data-tip', (state === 'min' || state === 'edge-l' || state === 'edge-r') ? '还原' : '最小化');
         max.setAttribute('data-tip', state === 'max' ? '向下还原' : '最大化');
     }
@@ -585,15 +627,9 @@
 
     function setupSnapLayouts(panel) {
         const layouts = document.getElementById('wechat-ai-snap-layouts');
-        
-        panel._showLayouts = () => {
-            if (state === 'max' || state === 'edge-l' || state === 'edge-r') return;
-            layouts.style.display = 'flex';
-        };
-
-        panel._hideLayouts = () => {
-            layouts.style.display = 'none';
-        };
+        if (!layouts) return;
+        panel._showLayouts = () => { if (state !== 'max' && state !== 'edge-l' && state !== 'edge-r') layouts.style.display = 'flex'; };
+        panel._hideLayouts = () => { layouts.style.display = 'none'; };
     }
 
     function bindGesture(handle, panel, handlers) {
@@ -620,11 +656,18 @@
 
     function enableDrag(el, handle) {
         let sx = 0, sy = 0, sl = 0, st = 0, w0 = 0;
+        let clickStart = 0, startX = 0, startY = 0, moved = false;
+        let wasMax = false;
+        
         bindGesture(handle, el, {
             start(x, y) {
+                clickStart = Date.now();
+                startX = x; startY = y; moved = false;
+                wasMax = (state === 'max');
+                
                 clearSnapHints(el);
                 if (state === 'edge-l' || state === 'edge-r') restoreFromEdge(el, false);
-                if (state === 'max') setState('normal');
+                
                 const r = readRect(el);
                 sx = x; sy = y; sl = r.left; st = r.top; w0 = r.width;
                 if (state === 'normal') savedRect = { left: r.left, top: r.top, width: r.width, height: r.height };
@@ -632,6 +675,16 @@
                 Object.assign(el.style, { right: 'auto', bottom: 'auto', left: sl + 'px', top: st + 'px' });
             },
             move(x, y) {
+                if (Math.abs(x - startX) > 5 || Math.abs(y - startY) > 5) {
+                    if (!moved && wasMax) {
+                        setState('normal');
+                        applyRect(el, savedRect, false);
+                        sl = savedRect.left; st = savedRect.top; w0 = savedRect.width;
+                        sx = x; sy = y;
+                    }
+                    moved = true;
+                }
+                
                 let nl = sl + (x - sx), nt = st + (y - sy);
                 nl = Math.max(-w0, Math.min(window.innerWidth, nl));
                 nt = Math.max(0, Math.min(window.innerHeight - 28, nt));
@@ -675,12 +728,27 @@
 
                 const r = readRect(el), side = computeSnap(r.left, r.width);
                 if (side) return snapToEdge(el, side);
+                
                 if (state === 'normal') {
                     const w = r.width; let fl = r.left;
                     if (fl < 0) fl = 0;
                     if (fl + w > window.innerWidth) fl = Math.max(0, window.innerWidth - w);
                     if (fl !== r.left) el.style.left = fl + 'px';
                     if (savedRect) { savedRect.left = fl; savedRect.top = r.top; }
+                }
+
+                if (!moved && Date.now() - clickStart < 300) {
+                    const settings = document.getElementById('wechat-ai-settings');
+                    if (settings) {
+                        const isHidden = !settings.classList.contains('show');
+                        if (isHidden) {
+                            settings.classList.add('show');
+                            const cssInput = document.getElementById('wechat-ai-custom-css');
+                            if (cssInput) cssInput.value = customCss;
+                        } else {
+                            settings.classList.remove('show');
+                        }
+                    }
                 }
             }
         });
@@ -1026,12 +1094,11 @@
                 
                 if (scrollAccum > 60) {
                     tip.classList.add('show');
+                    tip.classList.remove('loading');
                     if (scrollAccum > 150) {
                         tip.textContent = '松开鼠标刷新';
-                        tip.style.background = 'rgba(7,193,96,1)';
                     } else {
                         tip.textContent = '继续上滑刷新';
-                        tip.style.background = 'rgba(7,193,96,0.8)';
                     }
                 }
 
@@ -1039,10 +1106,11 @@
                 timer = setTimeout(() => {
                     if (scrollAccum > 150) {
                         refreshing = true;
-                        tip.textContent = '正在刷新...';
-                        tip.style.transform = 'translateY(0)';
+                        tip.textContent = '正在同步刷新...';
+                        tip.classList.add('loading');
+                        tip.style.transform = 'translateX(-50%) translateY(0)';
                         GM_setValue('wechat_ai_cmd_reload', Date.now());
-                        setTimeout(() => { try { location.reload(); } catch (e) {} }, 600);
+                        setTimeout(() => { try { location.reload(); } catch (e) {} }, 800);
                     } else {
                         scrollAccum = 0;
                         tip.classList.remove('show');
@@ -1062,7 +1130,7 @@
         const div = document.createElement('div'); div.id = 'wechat-ai-ui';
         div.innerHTML = `
             <div id="wechat-ai-dragbar">
-                <div id="wechat-ai-dragzone">≡   WeChat.ai </div>
+                <div id="wechat-ai-dragzone">WeChat.ai</div>
                 <div id="wechat-ai-winbtns">
                     <button id="wechat-ai-min" class="wechat-ai-winbtn" data-tip="最小化">—</button>
                     <button id="wechat-ai-max" class="wechat-ai-winbtn" data-tip="最大化">□</button>
@@ -1089,6 +1157,36 @@
             <div class="resize-handle rh-nw" data-dir="nw"></div>
             <div class="resize-handle rh-se" data-dir="se"></div>
             <div class="resize-handle rh-sw" data-dir="sw"></div>
+            
+            <div id="wechat-ai-settings">
+                <div id="wechat-ai-settings-header">
+                    <span>设置 / Settings</span>
+                    <button id="wechat-ai-settings-close">✕</button>
+                </div>
+                <div id="wechat-ai-settings-content">
+                    <div class="settings-group">
+                        <h4>自定义 CSS 样式</h4>
+                        <textarea id="wechat-ai-custom-css" placeholder="在此输入 CSS 代码，作用于悬浮窗内部..."></textarea>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            <button class="settings-btn" id="wechat-ai-save-css">应用并保存</button>
+                            <button class="settings-btn secondary" id="wechat-ai-import-css">从本地导入 CSS</button>
+                        </div>
+                    </div>
+                    <div class="settings-group">
+                        <h4>对话与数据管理</h4>
+                        <button class="settings-btn danger" id="wechat-ai-clear-all">清空全部对话记录</button>
+                    </div>
+                    <div class="settings-group">
+                        <h4>关于</h4>
+                        <div id="wechat-ai-about">
+                            WeChat.ai (v${VERSION})<br>
+                            将豆包与 DeepSeek 网页版接入同一个群聊。<br>
+                            按住标题栏拖拽移动，点击标题栏打开此设置页。
+                        </div>
+                    </div>
+                </div>
+                <div id="wechat-ai-toast"></div>
+            </div>
         `;
         document.body.appendChild(div);
 
@@ -1137,6 +1235,7 @@
         document.getElementById('wechat-ai-send').onclick = sendUserMessage;
         document.getElementById('wechat-ai-plus').onclick = pickUserImage;
         document.getElementById('wechat-ai-input').addEventListener('keydown', e => { if (e.key === 'Enter') sendUserMessage(); });
+        
         const minBtn = document.getElementById('wechat-ai-min'), maxBtn = document.getElementById('wechat-ai-max');
         [minBtn, maxBtn].forEach(b => { b.addEventListener('mousedown', e => e.stopPropagation()); });
         minBtn.addEventListener('click', () => toggleMin(div)); maxBtn.addEventListener('click', () => toggleMax(div));
@@ -1144,8 +1243,68 @@
         enableDrag(div, document.getElementById('wechat-ai-dragbar'));
         div.querySelectorAll('.resize-handle').forEach(h => enableResize(div, h));
         setupSnapLayouts(div);
-        
         setupScrollRefresh(); setupBgPicker(); updateBtns();
+
+        const settingsBtnClose = document.getElementById('wechat-ai-settings-close');
+        const customCssInput = document.getElementById('wechat-ai-custom-css');
+        const saveCssBtn = document.getElementById('wechat-ai-save-css');
+        const importCssBtn = document.getElementById('wechat-ai-import-css');
+        const clearAllBtn = document.getElementById('wechat-ai-clear-all');
+        const aboutBox = document.getElementById('wechat-ai-about');
+        const toast = document.getElementById('wechat-ai-toast');
+
+        let aboutClicks = 0;
+        let toastTimer = null;
+
+        settingsBtnClose.addEventListener('click', () => {
+            document.getElementById('wechat-ai-settings').classList.remove('show');
+        });
+
+        saveCssBtn.addEventListener('click', () => {
+            customCss = customCssInput.value;
+            GM_setValue(K.CUSTOM_CSS, customCss);
+            const style = document.getElementById('wechat-ai-custom-style');
+            if (style) style.textContent = customCss;
+            saveCssBtn.textContent = '已保存！';
+            setTimeout(() => { saveCssBtn.textContent = '应用并保存'; }, 1500);
+        });
+
+        importCssBtn.addEventListener('click', () => {
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = '.css,text/css';
+            fileInput.onchange = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (evt) => {
+                    customCssInput.value = evt.target.result;
+                    saveCssBtn.click(); 
+                };
+                reader.readAsText(file);
+            };
+            fileInput.click();
+        });
+
+        clearAllBtn.addEventListener('click', () => {
+            if (confirm('确定要清空当前所有对话记录吗？')) {
+                clearChat();
+                document.getElementById('wechat-ai-settings').classList.remove('show');
+            }
+        });
+
+        aboutBox.addEventListener('click', () => {
+            aboutClicks++;
+            if (aboutClicks >= 3) {
+                aboutClicks = 0;
+                const randomQuote = LEI_JUN_QUOTES[Math.floor(Math.random() * LEI_JUN_QUOTES.length)];
+                toast.textContent = '“' + randomQuote + '” —— 雷军';
+                toast.classList.add('show');
+                if (toastTimer) clearTimeout(toastTimer);
+                toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
+            }
+        });
+
         window.addEventListener('resize', () => {
             if (div.style.display === 'none') return;
             if (state === 'edge-l' || state === 'edge-r') {
@@ -1162,24 +1321,22 @@
         });
     }
 
-    setInterval(() => {
-        sessionStorage.setItem('wechat_ai_hb_' + myRole, Date.now());
-    }, 3000);
-    sessionStorage.setItem('wechat_ai_hb_' + myRole, Date.now());
-
+    GM_setValue(K.HB + myRole, Date.now());
+    setInterval(() => { GM_setValue(K.HB + myRole, Date.now()); }, 3000);
+    
     setTimeout(() => {
         const otherRole = isDoubao ? 'deepseek' : 'doubao';
-        const otherHb = parseInt(sessionStorage.getItem('wechat_ai_hb_' + otherRole) || '0', 10);
-        const lastOpen = parseInt(sessionStorage.getItem('wechat_ai_last_open_' + otherRole) || '0', 10);
+        const otherHb = parseInt(GM_getValue(K.HB + otherRole, '0'), 10);
+        const lastOpen = parseInt(GM_getValue(K.LAST_OPEN + otherRole, '0'), 10);
         
-        if (Date.now() - otherHb > 10000 && Date.now() - lastOpen > 30000) {
-            sessionStorage.setItem('wechat_ai_last_open_' + otherRole, Date.now());
+        if (Date.now() - otherHb > 15000 && Date.now() - lastOpen > 60000) {
+            GM_setValue(K.LAST_OPEN + otherRole, Date.now());
             const url = isDoubao ? 'https://chat.deepseek.com' : 'https://www.doubao.com/chat/';
             const a = document.createElement('a');
             a.href = url; a.target = '_blank'; a.style.display = 'none';
             document.body.appendChild(a); a.click(); document.body.removeChild(a);
         }
-    }, 3000);
+    }, 5000);
 
     (function waitForPageReady() {
         let attempts = 0;
@@ -1199,9 +1356,6 @@
             }
         }, 500);
     })();
-
-    setInterval(flush, 1000);
-    setInterval(checkThinking, 1000);
 
     let executing = false, pendingForward = null, lastUserTs = 0, lastTaskTs = 0, lastReplyTs = 0;
     const seen = new Set(); let lastKey = '', stable = 0;
@@ -1388,4 +1542,7 @@
         setTimeout(capture, 2000);
         setTimeout(capture, 2800);
     }, 500);
+
+    setInterval(flush, 1000);
+    setInterval(checkThinking, 1000);
 })();
