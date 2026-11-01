@@ -117,4 +117,4 @@ const DEFAULT_MAX_CHARS  = 100; // 追加到每条 AI prompt 的软性字数提�
 
 如各语言版本之间存在歧义，**以英文版本为准**。
 
-版权所有 (c) 2026 furina ZiZi_Code
+版权所有 (c) 2026 shen136 lin-drv-game
