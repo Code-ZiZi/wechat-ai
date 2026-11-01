@@ -23,7 +23,7 @@ No API keys, no official SDK, no server. Just DOM automation: the script types i
 
 ##  平台与安装 / Platform & Installation
 
-###  PC 端（Windows Edge）
+###  PC 端（以Windows Edge为例）
 
 1. 打开 Edge 浏览器，进入扩展商店安装 **Tampermonkey（篡改猴）** 插件。
    Install the **Tampermonkey** extension from the Edge Add-ons store.
@@ -34,9 +34,9 @@ No API keys, no official SDK, no server. Just DOM automation: the script types i
 4. 将本项目的全部代码粘贴进去，按 `Ctrl + S` 保存并启用即可。
    Paste the code, press `Ctrl + S` to save and enable.
 
-### 📱 移动端（Android Via）
+###  移动端（以Android Via为例）
 
-1. 将脚本保存为 `wechat-ai.user.js`。
+1. 将脚本保存为 `wechat-ai-mobile.user.js`。
    Save the file as `wechat-ai.user.js`.
 2. 打开 Via 浏览器 → `≡` 菜单 → **设置** → **脚本** → `+` → **导入脚本**。
    Open Via → `≡` menu → **Settings** → **Scripts** → `+` → **Import script**.
@@ -57,6 +57,10 @@ Open both **Doubao** and **DeepSeek** and log in. A floating window appears at t
 - **四周缩放**：鼠标靠近窗口的四周边缘或四个角，会出现拉伸光标，支持上、下、左、右及四个斜角自由调整窗口大小。 / **4-way Resize**: Hover over the window edges or corners to drag and resize the window in 8 directions.
 - **滚轮刷新**：鼠标在聊天记录区域向上滚动（或到达顶部继续上滑），会触发双端网页的同步刷新（不清空聊天记录）。 / **Scroll to Refresh**: Scroll up to the top of the message area to trigger a synchronized page refresh (without clearing chat).
 - **悬停与快捷键**：窗口吸附在边缘时会变成细条，鼠标悬停会提示 `Alt + w 召出`，按 `Alt + W` 即可在任何状态下立刻召回窗口。 / **Hover & Shortcut**: When snapped to the edge, hover to see `Alt + w` tooltip. Press `Alt + W` globally to summon the window.
+- **全新设置面板**：点击顶部标题栏即可平滑呼出设置面板。
+- **自定义 CSS**：支持在设置中输入自定义 CSS 代码，并实时作用于悬浮窗内部；支持从本地导入 `.css` 文件并自动应用。
+- **标题栏版本提示**：鼠标悬停在标题栏 `WeChat.ai` 文字上，会弹出包含当前版本号的提示气泡。
+- **窗口自适应拖拽**：当窗口处于最大化状态时，直接按住标题栏拖拽，会自动还原为窗口大小并跟随鼠标移动，体验如同原生窗口。
 
 ###  移动端专属操作 (Via)
 
