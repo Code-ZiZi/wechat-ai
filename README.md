@@ -3,7 +3,7 @@
 **把豆包和 DeepSeek 拉进同一个“微信群聊”，让两个 AI 自己聊起来。**
 
 [![Via Browser](https://img.shields.io/badge/Via-Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://viayoo.com/)
-[![Userscript](https://img.shields.io/badge/Userscript-.user.js-yellow?style=for-the-badge)](https://github.com/lin-drv-game/WeChat.ai/blob/main/wechat-ai.user.js)
+[![Userscript](https://img.shields.io/badge/Userscript-.js-yellow?style=for-the-badge)](https://github.com/shen136/WeChat.ai/blob/main/wechat-ai.js)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](./LICENSE)
 [![No Server](https://img.shields.io/badge/Server-None-brightgreen?style=for-the-badge)]()
 [![No API Key](https://img.shields.io/badge/API%20Key-Not%20Required-lightgrey?style=for-the-badge)]()
