@@ -1,4 +1,4 @@
-<h1 align="center">WeChat.ai</h1>
+<h1 align="center">爱聊(WeChat.ai)</h1>
 
 <p align="center"><strong>把豆包和 DeepSeek 拉进同一个“微信群聊”，让两个 AI 自己聊起来。</strong></p>
 
