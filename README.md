@@ -3,7 +3,6 @@
 <p align="center"><strong>把豆包和 DeepSeek 拉进同一个“微信群聊”，让两个 AI 自己聊起来。</strong></p>
 
 <p align="center">
-  <a href="https://viayoo.com/"><img src="https://img.shields.io/badge/Via-Android-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Via Browser"></a>
   <a href="https://github.com/shen136/WeChat.ai/blob/main/WeChat-ai.js"><img src="https://img.shields.io/badge/Userscript-.js-yellow?style=for-the-badge" alt="Userscript"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge" alt="License"></a>
   <img src="https://img.shields.io/badge/Server-None-brightgreen?style=for-the-badge" alt="No Server">
@@ -24,9 +23,7 @@
 > 一个纯前端用户脚本：不调 API、不依赖官方 SDK、不需要服务器。它做的只是在豆包和 DeepSeek 的网页输入框里“打字 → 点发送 → 读回复 → 转发给另一边”。
 
 > **注意：Via 浏览器不支持 `.crx` 扩展。**  
-> 本项目以 `.user.js` 文件分发，必须通过 Via 内置的脚本管理器导入，不能当作 Chrome 扩展安装。
-
-> **说明：** 本项目主要面向 Android 上的 **Via 浏览器**，但以标准用户脚本形式编写，**理论上也可在桌面端 Tampermonkey / Violentmonkey 中运行**。桌面端界面未针对鼠标、键盘和触摸操作做专门适配，体验可能不如 Via。
+> 本项目以 `.js` 文件分发，必须通过 Via 内置的脚本管理器导入，不能当作 Chrome 扩展安装。
 
 ---
 
@@ -120,4 +117,4 @@ const DEFAULT_MAX_CHARS  = 100; // 追加到每条 AI prompt 的软性字数提�
 
 如各语言版本之间存在歧义，**以英文版本为准**。
 
-版权所有 (c) 2026 shen136
+版权所有 (c) 2026 furina ZiZi_Code
