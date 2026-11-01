@@ -1,79 +1,123 @@
-# 爱聊 (WeChat.ai) / WeChat.ai
+<h1 align="center">WeChat.ai</h1>
 
-一款仿微信风格的悬浮聊天窗口，将 **豆包** 和 **DeepSeek** 两个网页客户端桥接进同一个共享对话，以纯前端用户脚本的形式实现。
-A WeChat-style floating chat window that bridges **Doubao** and **DeepSeek** web clients into one shared conversation, implemented as a pure front-end userscript.
+<p align="center"><strong>把豆包和 DeepSeek 拉进同一个“微信群聊”，让两个 AI 自己聊起来。</strong></p>
 
-无需 API Key，无需官方 SDK，无需服务器。完全依靠 DOM 自动化：脚本把内容输入到各 AI 的网页输入框、点击发送、读取页面上的回复，再转发给另一方。
-No API keys, no official SDK, no server. Just DOM automation: the script types into each AI's web input box, clicks send, reads the reply from the page, and forwards it to the other side.
+<p align="center">
+  <a href="https://viayoo.com/"><img src="https://img.shields.io/badge/Via-Android-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Via Browser"></a>
+  <a href="https://github.com/shen136/WeChat.ai/blob/main/WeChat-ai.js"><img src="https://img.shields.io/badge/Userscript-.js-yellow?style=for-the-badge" alt="Userscript"></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge" alt="License"></a>
+  <img src="https://img.shields.io/badge/Server-None-brightgreen?style=for-the-badge" alt="No Server">
+  <img src="https://img.shields.io/badge/API%20Key-Not%20Required-lightgrey?style=for-the-badge" alt="No API Key">
+</p>
+
+<p align="center">
+  <a href="#快速开始">快速开始</a> ·
+  <a href="#安装">安装</a> ·
+  <a href="#功能">功能</a> ·
+  <a href="#配置">配置</a> ·
+  <a href="#贡献">贡献</a> ·
+  <a href="#许可证">许可证</a>
+</p>
 
 ---
 
-##  核心功能 / Features
+> 一个纯前端用户脚本：不调 API、不依赖官方 SDK、不需要服务器。它做的只是在豆包和 DeepSeek 的网页输入框里“打字 → 点发送 → 读回复 → 转发给另一边”。
 
-- **群聊式界面 (Group-chat UI)**：仿微信气泡、头像、左右分栏布局。 / WeChat-inspired bubbles, avatars, left/right layout.
-- **豆包 + DeepSeek 闭环联动 (Doubao + DeepSeek Loop)**：用户消息 → 豆包 → 豆包回复 → DeepSeek → DeepSeek 回复 → 再回到豆包。 / User message → Doubao → Doubao reply → DeepSeek → DeepSeek reply → back to Doubao.
-- **心跳检测与自动补全 (Heartbeat & Auto-Open)**：脚本会自动检测另一方是否在线，如果只打开了其中一个页面，会自动在后台唤起另一个标签页，且刷新时不会无限增殖。 / Automatically detects if the other page is missing and opens it in the background. Preventing infinite tab multiplication upon refreshing.
-- **轮次与长度控制 (Round & Length Control)**：可配置 `MAX_ROUNDS` 和 `MAX_CHARS`，防止 AI 之间无休止地互聊。 / Configurable `maxRounds` and `maxChars` to stop runaway AI-to-AI chatter.
-- **代码与图片支持 (Code & Image Support)**：自动提取 Markdown 代码块并使用 GitHub Dark 主题高亮渲染；用户可通过 `+` 按钮上传图片。 / Extracts Markdown code blocks with GitHub Dark highlighting; supports image uploads.
-- **跨平台专属手势 (Cross-platform Gestures)**：针对 PC（Edge）和移动端（Via）分别优化的独立交互逻辑。 / Dedicated UI/UX logic optimized separately for Desktop (Edge) and Mobile (Via).
-- **精致 UI 与 GPU 加速 (Refined UI & GPU Acceleration)**：PC 端窗口比例缩小，阴影更细腻，引入 `translateZ(0)` 硬件加速，确保动画如丝般顺滑不卡顿。 / Narrower PC window, finer shadows, and GPU hardware acceleration to prevent stuttering.
-- **历史记录持久化 (Persistent History)**：消息通过 `GM_setValue` 存储，页面刷新后依然保留。 / Messages are stored via `GM_setValue`, surviving page reloads.
+> **注意：Via 浏览器不支持 `.crx` 扩展。**  
+> 本项目以 `.user.js` 文件分发，必须通过 Via 内置的脚本管理器导入，不能当作 Chrome 扩展安装。
+
+> **说明：** 本项目主要面向 Android 上的 **Via 浏览器**，但以标准用户脚本形式编写，**理论上也可在桌面端 Tampermonkey / Violentmonkey 中运行**。桌面端界面未针对鼠标、键盘和触摸操作做专门适配，体验可能不如 Via。
 
 ---
 
-##  平台与安装 / Platform & Installation
+## 快速开始
 
-###  PC 端（以Windows Edge为例）
+### 前置条件
 
-1. 打开 Edge 浏览器，进入扩展商店安装 **Tampermonkey（篡改猴）** 插件。
-   Install the **Tampermonkey** extension from the Edge Add-ons store.
-2. 点击浏览器右上角的 Tampermonkey 图标，选择 **管理面板 (Dashboard)**。
-   Click the Tampermonkey icon and select **Dashboard**.
+- 已登录 [豆包](https://www.doubao.com) 和 [DeepSeek](https://chat.deepseek.com) 账号
+- **两个标签页同时保持打开**（每一边各自负责自己的半轮循环）
+- PC 端：Windows Edge 浏览器，并安装 Tampermonkey（篡改猴）
+- 移动端：Android 设备，并安装 [Via 浏览器](https://viayoo.com/)
+
+### 跑通
+
+打开豆包和 DeepSeek 两个标签页，右下角会出现浮动聊天窗口。输入一条消息并发送，两个 AI 就会按设定的轮次和长度自动交替对话。
+
+---
+
+## 安装
+
+> **提示：** 安装完成后，请同时打开豆包和 DeepSeek 两个标签页，右下角出现浮动聊天窗口即表示脚本已生效。
+
+### <img src="https://img.shields.io/badge/Edge-0078D7?style=flat-square&logo=microsoftedge&logoColor=white" height="22" alt="Microsoft Edge"> PC 端（Windows Edge）
+
+1. 打开 Edge 浏览器，进入扩展商店安装 **[Tampermonkey（篡改猴）](https://microsoftedge.microsoft.com/addons/detail/tampermonkey/iikmkjmpaadaobahmlepeloendndfphd)** 插件。也可以访问 [Tampermonkey 官网](https://www.tampermonkey.net) 查看其他安装方式。
+2. 点击浏览器右上角的 Tampermonkey 图标，选择 **管理面板（Dashboard）**。
 3. 点击 `+` 号新建脚本，清空编辑器里的默认代码。
-   Click the `+` tab to add a new script, clear the default code.
-4. 将本项目的全部代码粘贴进去，按 `Ctrl + S` 保存并启用即可。
-   Paste the code, press `Ctrl + S` to save and enable.
+4. 将本项目的全部代码粘贴进去，按 `Ctrl + S` 保存并启用。
+5. 确保脚本的 `@match` 规则包含：
+   - `https://www.doubao.com/*`
+   - `https://chat.deepseek.com/*`
 
-###  移动端（以Android Via为例）
+> **注意：** 两个 `@match` 缺一不可，否则对应网站的聊天窗口不会出现。
 
-1. 将脚本保存为 `wechat-ai-mobile.user.js`。
-   Save the file as `wechat-ai.user.js`.
+### <img src="https://img.shields.io/badge/Android-3DDC84?style=flat-square&logo=android&logoColor=white" height="22" alt="Android"> 移动端（Android Via）
+
+1. 将脚本保存为 `WeChat-ai.js`。
 2. 打开 Via 浏览器 → `≡` 菜单 → **设置** → **脚本** → `+` → **导入脚本**。
-   Open Via → `≡` menu → **Settings** → **Scripts** → `+` → **Import script**.
-3. 确保脚本的 `@match` 规则包含 `https://www.doubao.com/*` 和 `https://chat.deepseek.com/*`。
-   Ensure the `@match` rules include both domains.
+3. 选择 `WeChat-ai.js` 文件，确认 `@match` 包含：
+   - `https://www.doubao.com/*`
+   - `https://chat.deepseek.com/*`
+4. 保存并启用。
+
+> **注意：** Via 不支持 `.crx` 扩展，请务必通过 Via 内置的脚本管理器导入 `.user.js` / `.js` 脚本，不要当作 Chrome 扩展安装。
+
+> **安装完成！** 打开豆包和 DeepSeek 两个标签页，输入一条消息，就可以看两个 AI 在“微信群聊”里自动聊起来了。
 
 ---
 
-##  操作指南 / Usage Guide
+## 功能
 
-### 通用逻辑 / General Logic
-打开**豆包**和 **DeepSeek** 页面并登录。任意一个页面的右下角会浮出聊天窗口。输入消息并点击 **发送**，双端 AI 的对话闭环会自动开始运行。
-Open both **Doubao** and **DeepSeek** and log in. A floating window appears at the bottom-right of either page. Type a message and hit **Send**, the AI loop runs automatically.
-
-###  桌面端专属操作 (Edge)
-
-- **右键菜单**：在悬浮窗内的空白处点击鼠标右键，即可呼出菜单（更换背景、恢复背景、清空对话）。 / **Right-click Menu**: Right-click on the blank area inside the window to open the menu.
-- **四周缩放**：鼠标靠近窗口的四周边缘或四个角，会出现拉伸光标，支持上、下、左、右及四个斜角自由调整窗口大小。 / **4-way Resize**: Hover over the window edges or corners to drag and resize the window in 8 directions.
-- **滚轮刷新**：鼠标在聊天记录区域向上滚动（或到达顶部继续上滑），会触发双端网页的同步刷新（不清空聊天记录）。 / **Scroll to Refresh**: Scroll up to the top of the message area to trigger a synchronized page refresh (without clearing chat).
-- **悬停与快捷键**：窗口吸附在边缘时会变成细条，鼠标悬停会提示 `Alt + w 召出`，按 `Alt + W` 即可在任何状态下立刻召回窗口。 / **Hover & Shortcut**: When snapped to the edge, hover to see `Alt + w` tooltip. Press `Alt + W` globally to summon the window.
-- **全新设置面板**：点击顶部标题栏即可平滑呼出设置面板。
-- **自定义 CSS**：支持在设置中输入自定义 CSS 代码，并实时作用于悬浮窗内部；支持从本地导入 `.css` 文件并自动应用。
-- **标题栏版本提示**：鼠标悬停在标题栏 `WeChat.ai` 文字上，会弹出包含当前版本号的提示气泡。
-- **窗口自适应拖拽**：当窗口处于最大化状态时，直接按住标题栏拖拽，会自动还原为窗口大小并跟随鼠标移动，体验如同原生窗口。
-
-###  移动端专属操作 (Via)
-
-- **长按菜单**：长按聊天区空白处呼出菜单。 / **Long-press Menu**: Long-press the blank area to open the menu.
-- **下拉刷新**：列表滑到顶部后继续下拉即可刷新。 / **Pull-to-Refresh**: Pull down at the top of the list.
-- **点击吸附条**：窗口贴边变细条后，点击细条即可召回窗口。 / **Tap to Summon**: Tap the slim edge bar to restore the window.
+| 功能 | 说明 |
+|---|---|
+| **微信群聊 UI** | 左右气泡、头像、可拖拽、可缩放，还原微信聊天体验 |
+| **双 AI 自动循环** | 用户消息 → 豆包 → 豆包回复转发 DeepSeek → DeepSeek 回复转发回豆包 |
+| **轮次与长度控制** | `maxRounds` 控制往返轮数，`maxChars` 限制每条回复的软性长度，防止 AI 互相“刷屏” |
+| **图片互通** | 提取豆包生成的图片并渲染；用户也可通过 `+` 按钮上传图片 |
+| **完全可移动窗口** | 拖标题栏移动，右下角缩放，支持最大化 / 最小化 / 吸附为半透明侧边条 |
+| **自定义背景与头像** | 长按空白区更换聊天背景；点击头像上传自定义头像（自动裁剪为 64×64 JPEG） |
+| **下拉刷新** | 消息区滚动到顶部后下拉，重新加载页面 |
+| **持久化历史** | 消息通过 `GM_setValue` 存储，刷新或重启浏览器后不丢失 |
 
 ---
 
-##  配置项 / Configuration
+## 配置
 
-位于脚本顶部 / At the top of the script:
+配置位于脚本顶部：
 
 ```javascript
-const MAX_ROUNDS = 1;   // 每条用户消息触发多少次 豆包↔DeepSeek 的往返对话 / Round-trips per user message
-const MAX_CHARS  = 100; // 附加给 AI 的软性字数限制提示（0 = 不限制） / Soft character limit hint (0 = no limit)
+const DEFAULT_MAX_ROUNDS = 1;   // 每条用户消息触发的豆包 ↔ DeepSeek 往返轮数
+const DEFAULT_MAX_CHARS  = 100; // 追加到每条 AI prompt 的软性字数提示（0 = 不限）
+```
+
+---
+
+## 贡献
+
+欢迎提交 Issue 或 Pull Request。贡献时请尽量保持本项目“纯前端、无服务器、无需 API Key”的设计。
+
+---
+
+## 许可证
+
+本项目采用 **MIT 许可证**。具有法律效力的英文原文请参阅 [LICENSE](./LICENSE)。
+
+以下译文仅供参考：
+
+- [简体中文](./LICENSE.zh-CN.md)
+- [日本語](./LICENSE.ja.md)
+- [한국어](./LICENSE.ko.md)
+
+如各语言版本之间存在歧义，**以英文版本为准**。
+
+版权所有 (c) 2026 shen136
