@@ -1,48 +1,43 @@
-# WeChat.ai
+<h1 align="center">WeChat.ai</h1>
 
-**把豆包和 DeepSeek 拉进同一个“微信群聊”，让两个 AI 自己聊起来。**
+<p align="center"><strong>把豆包和 DeepSeek 拉进同一个“微信群聊”，让两个 AI 自己聊起来。</strong></p>
 
-[![Via Browser](https://img.shields.io/badge/Via-Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://viayoo.com/)
-[![Userscript](https://img.shields.io/badge/Userscript-.js-yellow?style=for-the-badge)](https://github.com/shen136/WeChat.ai/blob/main/wechat-ai.js)
-[![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](./LICENSE)
-[![No Server](https://img.shields.io/badge/Server-None-brightgreen?style=for-the-badge)]()
-[![No API Key](https://img.shields.io/badge/API%20Key-Not%20Required-lightgrey?style=for-the-badge)]()
+<p align="center">
+  <a href="https://viayoo.com/"><img src="https://img.shields.io/badge/Via-Android-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Via Browser"></a>
+  <a href="https://github.com/shen136/WeChat.ai/blob/main/WeChat-ai.js"><img src="https://img.shields.io/badge/Userscript-.js-yellow?style=for-the-badge" alt="Userscript"></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge" alt="License"></a>
+  <img src="https://img.shields.io/badge/Server-None-brightgreen?style=for-the-badge" alt="No Server">
+  <img src="https://img.shields.io/badge/API%20Key-Not%20Required-lightgrey?style=for-the-badge" alt="No API Key">
+</p>
 
-[快速开始](#quick-start) · [功能](#features) · [配置](#configuration) · [贡献](#contributing)
+<p align="center">
+  <a href="#快速开始">快速开始</a> ·
+  <a href="#安装">安装</a> ·
+  <a href="#功能">功能</a> ·
+  <a href="#配置">配置</a> ·
+  <a href="#贡献">贡献</a> ·
+  <a href="#许可证">许可证</a>
+</p>
+
+---
 
 > 一个纯前端用户脚本：不调 API、不依赖官方 SDK、不需要服务器。它做的只是在豆包和 DeepSeek 的网页输入框里“打字 → 点发送 → 读回复 → 转发给另一边”。
 
+> **注意：Via 浏览器不支持 `.crx` 扩展。**  
+> 本项目以 `.user.js` 文件分发，必须通过 Via 内置的脚本管理器导入，不能当作 Chrome 扩展安装。
+
+> **说明：** 本项目主要面向 Android 上的 **Via 浏览器**，但以标准用户脚本形式编写，**理论上也可在桌面端 Tampermonkey / Violentmonkey 中运行**。桌面端界面未针对鼠标、键盘和触摸操作做专门适配，体验可能不如 Via。
+
 ---
 
-> **注意：Via 浏览器不支持 `.crx` 扩展。** 本项目以 `.user.js` 文件分发，必须通过 Via 内置的脚本管理器导入，不能当作 Chrome 扩展安装。
-
-> **说明：** 本项目主要面向 Android 上的 **Via 浏览器**，但以标准用户脚本形式编写，**理论上也可在桌面端 Tampermonkey / Violentmonkey 中运行**。桌面端界面未针对鼠标/键盘和触摸操作做专门适配，体验可能不如 Via。
-
----
-
-## Quick Start
+## 快速开始
 
 ### 前置条件
 
-- Android 设备，安装 [Via 浏览器](https://viayoo.com/)
 - 已登录 [豆包](https://www.doubao.com) 和 [DeepSeek](https://chat.deepseek.com) 账号
 - **两个标签页同时保持打开**（每一边各自负责自己的半轮循环）
-
-### 方式一：本地导入（推荐）
-
-1. 下载 `wechat-ai.user.js`。
-2. 打开 Via → `≡` → **设置** → **脚本** → `+` → **导入脚本**
-3. 选择 `.user.js` 文件，确认 `@match` 包含：
-   - `https://www.doubao.com/*`
-   - `https://chat.deepseek.com/*`
-4. 保存并启用
-
-### 方式二：从 URL 安装
-
-1. 将 `wechat-ai.user.js` 上传到任意 Public 仓库
-2. 在 GitHub 上打开该文件，点击 **Raw**，复制完整 URL
-3. Via 中访问 `viabrowser://settings/extensions` → `+` → **从 URL 安装**
-4. 粘贴 Raw 链接并确认
+- PC 端：Windows Edge 浏览器，并安装 Tampermonkey（篡改猴）
+- 移动端：Android 设备，并安装 [Via 浏览器](https://viayoo.com/)
 
 ### 跑通
 
@@ -50,9 +45,40 @@
 
 ---
 
-## Features
+## 安装
 
-| Feature | 说明 |
+> **提示：** 安装完成后，请同时打开豆包和 DeepSeek 两个标签页，右下角出现浮动聊天窗口即表示脚本已生效。
+
+### <img src="https://img.shields.io/badge/Edge-0078D7?style=flat-square&logo=microsoftedge&logoColor=white" height="22" alt="Microsoft Edge"> PC 端（Windows Edge）
+
+1. 打开 Edge 浏览器，进入扩展商店安装 **[Tampermonkey（篡改猴）](https://microsoftedge.microsoft.com/addons/detail/tampermonkey/iikmkjmpaadaobahmlepeloendndfphd)** 插件。也可以访问 [Tampermonkey 官网](https://www.tampermonkey.net) 查看其他安装方式。
+2. 点击浏览器右上角的 Tampermonkey 图标，选择 **管理面板（Dashboard）**。
+3. 点击 `+` 号新建脚本，清空编辑器里的默认代码。
+4. 将本项目的全部代码粘贴进去，按 `Ctrl + S` 保存并启用。
+5. 确保脚本的 `@match` 规则包含：
+   - `https://www.doubao.com/*`
+   - `https://chat.deepseek.com/*`
+
+> **注意：** 两个 `@match` 缺一不可，否则对应网站的聊天窗口不会出现。
+
+### <img src="https://img.shields.io/badge/Android-3DDC84?style=flat-square&logo=android&logoColor=white" height="22" alt="Android"> 移动端（Android Via）
+
+1. 将脚本保存为 `WeChat-ai.js`。
+2. 打开 Via 浏览器 → `≡` 菜单 → **设置** → **脚本** → `+` → **导入脚本**。
+3. 选择 `WeChat-ai.js` 文件，确认 `@match` 包含：
+   - `https://www.doubao.com/*`
+   - `https://chat.deepseek.com/*`
+4. 保存并启用。
+
+> **注意：** Via 不支持 `.crx` 扩展，请务必通过 Via 内置的脚本管理器导入 `.user.js` / `.js` 脚本，不要当作 Chrome 扩展安装。
+
+> **安装完成！** 打开豆包和 DeepSeek 两个标签页，输入一条消息，就可以看两个 AI 在“微信群聊”里自动聊起来了。
+
+---
+
+## 功能
+
+| 功能 | 说明 |
 |---|---|
 | **微信群聊 UI** | 左右气泡、头像、可拖拽、可缩放，还原微信聊天体验 |
 | **双 AI 自动循环** | 用户消息 → 豆包 → 豆包回复转发 DeepSeek → DeepSeek 回复转发回豆包 |
@@ -65,7 +91,7 @@
 
 ---
 
-## Configuration
+## 配置
 
 配置位于脚本顶部：
 
@@ -74,8 +100,13 @@ const DEFAULT_MAX_ROUNDS = 1;   // 每条用户消息触发的豆包 ↔ DeepSee
 const DEFAULT_MAX_CHARS  = 100; // 追加到每条 AI prompt 的软性字数提示（0 = 不限）
 ```
 
+---
 
+## 贡献
 
+欢迎提交 Issue 或 Pull Request。贡献时请尽量保持本项目“纯前端、无服务器、无需 API Key”的设计。
+
+---
 
 ## 许可证
 
