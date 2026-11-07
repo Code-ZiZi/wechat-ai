@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="https://github.com/shen136/WeChat.ai/blob/main/WeChat-ai.js"><img src="https://img.shields.io/badge/Deepseek-web-lightblue?style=for-the-badge" alt="Deepseek"></a>
-  <a href="https://github.com/shen136/WeChat.ai/blob/main/WeChat-ai.js"><img src="https://img.shields.io/badge/Wechat-ai-green?style=for-the-badge" alt="Deepseek"></a>
+  <a href="https://github.com/shen136/WeChat.ai/blob/main/WeChat-ai.js"><img src="https://img.shields.io/badge/Wechat-ai-whitegreen?style=for-the-badge" alt="Deepseek"></a>
   <a href="https://github.com/shen136/WeChat.ai/blob/main/WeChat-ai.js"><img src="https://img.shields.io/badge/Userscript-.js-yellow?style=for-the-badge" alt="Userscript"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge" alt="License"></a>
   <img src="https://img.shields.io/badge/Server-None-brightgreen?style=for-the-badge" alt="No Server">
