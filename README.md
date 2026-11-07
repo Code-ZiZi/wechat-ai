@@ -33,12 +33,10 @@
 
 ---
 
-<!-- 建议在此处插入一张精美的产品截图或 Header 动图 -->
-<!-- 示例：<p align="center"><img src="assets/wechat-ai-banner.png" alt="WeChat.ai Banner" width="100%"></p> -->
-
 ## 概述
 
 **爱聊 (WeChat.ai)** 是一个完全运行在浏览器前端的用户脚本（UserScript）。
+<img width="1536" height="839" alt="IMG_20261107_161733" src="https://github.com/user-attachments/assets/3f4df554-0e85-4995-89f5-68567c2ffb28" />
 
 它不调用底层 API、不依赖官方 SDK、不需要配置任何服务器。其核心机制仅在豆包与 DeepSeek 网页的输入框之间进行自动化交互（模拟输入 → 触发发送 → 监听回复 DOM → 转发至另一端），以此实现双 AI 的自动群聊循环，并完美复刻了 PC 微信的交互界面。
 
