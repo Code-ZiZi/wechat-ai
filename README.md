@@ -3,7 +3,7 @@
 <p align="center"><strong>把豆包和 DeepSeek 拉进同一个“微信群聊”，让两个 AI 自己聊起来。</strong></p>
 
 <p align="center">
-  <a href="https://github.com/shen136/WeChat.ai/blob/main/WeChat-ai.js"><img src="https://img.shields.io/badge/Deepseek-web-whiteblue?style=for-the-badge" alt="Deepseek"></a>
+  <a href="https://github.com/shen136/WeChat.ai/blob/main/WeChat-ai.js"><img src="https://img.shields.io/badge/Deepseek-web-lightblue?style=for-the-badge" alt="Deepseek"></a>
   <a href="https://github.com/shen136/WeChat.ai/blob/main/WeChat-ai.js"><img src="https://img.shields.io/badge/Wechat-ai-green?style=for-the-badge" alt="Deepseek"></a>
   <a href="https://github.com/shen136/WeChat.ai/blob/main/WeChat-ai.js"><img src="https://img.shields.io/badge/Userscript-.js-yellow?style=for-the-badge" alt="Userscript"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge" alt="License"></a>
