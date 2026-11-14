@@ -134,9 +134,127 @@
   .btn-ghost:hover { background: var(--bg-hover); transform: translateY(-1px); }
   .btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-  .hero-shot { position: relative; max-width: 940px; margin: 0 auto; border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-lg); border: 1px solid var(--border); background: var(--bg-elevated); }
-  .hero-shot img { width: 100%; height: auto; }
-  .hero-pill { position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); padding: 7px 18px; border-radius: 999px; background: rgba(0, 0, 0, 0.55); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); color: #fff; font-size: var(--fs-xs); white-space: nowrap; border: 1px solid rgba(255, 255, 255, 0.12); }
+  /* ============ 可交互模拟窗口 ============ */
+  .hero-shot {
+    position: relative;
+    max-width: 940px;
+    margin: 0 auto;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border);
+    background: var(--bg);
+    aspect-ratio: 16 / 10;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+  }
+  
+  .mock-window {
+    width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    background: var(--bg);
+    font-size: 13px;
+    transition: background 0.25s, color 0.25s;
+  }
+  .mock-titlebar {
+    height: 38px;
+    background: rgba(0, 0, 0, 0.03);
+    display: flex; align-items: center; justify-content: flex-end;
+    padding: 0 12px;
+    border-bottom: 1px solid var(--border);
+    user-select: none; position: relative;
+  }
+  [data-theme="dark"] .mock-titlebar { background: rgba(255, 255, 255, 0.03); }
+  .mock-title {
+    position: absolute; left: 50%; transform: translateX(-50%);
+    font-size: 13px; font-weight: 500; color: var(--text-main);
+  }
+  .mock-controls { display: flex; gap: 8px; }
+  .mock-btn {
+    width: 24px; height: 24px; display: grid; place-items: center;
+    border-radius: 4px; color: var(--text-secondary); cursor: pointer; transition: background 0.15s;
+  }
+  .mock-btn:hover { background: var(--bg-hover); }
+  .mock-btn.close:hover { background: #e81123; color: #fff; }
+  
+  .mock-messages {
+    flex: 1; overflow-y: auto; padding: 20px;
+    display: flex; flex-direction: column; gap: 16px;
+    background-color: var(--bg);
+    background-image: radial-gradient(circle at 10% 20%, rgba(7, 193, 96, 0.05) 0%, transparent 40%);
+  }
+  [data-theme="dark"] .mock-messages { background-image: radial-gradient(circle at 10% 20%, rgba(7, 193, 96, 0.02) 0%, transparent 40%); }
+  
+  .mock-msg-row {
+    display: flex; align-items: flex-start; gap: 10px;
+    max-width: 85%; animation: mock-in 0.3s ease;
+  }
+  @keyframes mock-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+  .mock-msg-row.right { flex-direction: row-reverse; align-self: flex-end; }
+  
+  .mock-avatar {
+    width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+    display: grid; place-items: center; color: #fff; font-size: 12px; font-weight: bold;
+  }
+  .mock-avatar.user { background: #07c160; }
+  .mock-avatar.doubao { background: #f5a623; }
+  .mock-avatar.deepseek { background: #4a6cf7; }
+  
+  .mock-bubble {
+    padding: 10px 14px; border-radius: 8px; line-height: 1.55; font-size: 13px;
+    word-break: break-word; box-shadow: var(--shadow-sm); position: relative;
+  }
+  .mock-bubble.user { background: #95ec69; color: #111; }
+  .mock-bubble.doubao { background: var(--bg-elevated); color: var(--text-main); }
+  .mock-bubble.deepseek { background: #e0eaff; color: #1a2340; }
+  [data-theme="dark"] .mock-bubble.doubao { background: #242424; }
+  [data-theme="dark"] .mock-bubble.deepseek { background: #2a3a55; color: #c8d4e8; }
+  [data-theme="dark"] .mock-bubble.user { background: #07c160; color: #000; }
+
+  /* 思考动画 */
+  .mock-thinking { display: flex; align-items: center; gap: 4px; font-size: 16px; color: var(--text-tertiary); height: 20px; }
+  .mock-thinking .dot { animation: mock-blink 1.2s infinite; }
+  .mock-thinking .dot:nth-child(2) { animation-delay: 0.2s; }
+  .mock-thinking .dot:nth-child(3) { animation-delay: 0.4s; }
+  .mock-thinking-wave { font-size: 13px; letter-spacing: 1px; color: var(--text-tertiary); }
+  .mock-thinking-wave span { animation: mock-wave 1.5s infinite; display: inline-block; }
+  .mock-thinking-wave span:nth-child(2) { animation-delay: 0.15s; }
+  .mock-thinking-wave span:nth-child(3) { animation-delay: 0.3s; }
+  .mock-thinking-wave span:nth-child(4) { animation-delay: 0.45s; }
+  .mock-thinking-wave span:nth-child(5) { animation-delay: 0.6s; }
+
+  @keyframes mock-blink { 0%, 80%, 100% { opacity: 0.2; } 40% { opacity: 1; } }
+  @keyframes mock-wave { 0%, 100% { color: var(--text-tertiary); transform: translateY(0); } 50% { color: var(--text-main); transform: translateY(-2px); } }
+
+  .mock-input-area {
+    background: var(--bg-elevated); border-top: 1px solid var(--border);
+    display: flex; flex-direction: column; flex-shrink: 0;
+  }
+  .mock-toolbar {
+    height: 40px; display: flex; align-items: center; padding: 0 16px; gap: 16px;
+    border-bottom: 1px solid var(--border); color: var(--text-secondary);
+  }
+  .mock-toolbar svg { cursor: pointer; transition: color 0.15s; }
+  .mock-toolbar svg:hover { color: var(--text-main); }
+  
+  #mock-input {
+    height: 80px; border: none; outline: none; resize: none;
+    padding: 12px 16px; font-size: 13px; font-family: inherit;
+    background: transparent; color: var(--text-main); line-height: 1.5;
+  }
+  #mock-input::placeholder { color: var(--text-placeholder); }
+  
+  .mock-actions { display: flex; justify-content: flex-end; padding: 0 16px 12px; }
+  #mock-send {
+    background: var(--bg-control); color: var(--text-tertiary);
+    border: none; padding: 6px 20px; border-radius: 5px;
+    font-size: 13px; cursor: default; transition: all 0.2s;
+  }
+  #mock-send.active { background: #07c160; color: #fff; cursor: pointer; box-shadow: 0 2px 8px rgba(7, 193, 96, 0.28); }
+  #mock-send.active:hover { background: #06ad56; }
+
+  .hero-pill { position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); padding: 7px 18px; border-radius: 999px; background: rgba(0, 0, 0, 0.55); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); color: #fff; font-size: var(--fs-xs); white-space: nowrap; border: 1px solid rgba(255, 255, 255, 0.12); pointer-events: none; z-index: 10; }
 
   /* ============ 特性 ============ */
   .features { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
@@ -242,10 +360,35 @@
           查看源码
         </a>
       </div>
+      
+      <!-- 可交互模拟窗口替代原图片 -->
       <div class="hero-shot">
-        <img src="https://github.com/user-attachments/assets/5c177333-0fc9-46ad-8f58-6b5ca598c0c6" alt="爱聊对话展示" width="1880" height="1200">
+        <div class="mock-window">
+          <div class="mock-titlebar">
+            <div class="mock-title">爱聊</div>
+            <div class="mock-controls">
+              <span class="mock-btn">－</span>
+              <span class="mock-btn">□</span>
+              <span class="mock-btn close">×</span>
+            </div>
+          </div>
+          <div class="mock-messages" id="mock-messages">
+            <!-- 消息由 JS 注入 -->
+          </div>
+          <div class="mock-input-area">
+            <div class="mock-toolbar">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z"/><path d="M8 14C8 14 9.5 16 12 16C14.5 16 16 14 16 14" stroke-linecap="round"/><circle cx="9" cy="9" r="1" fill="currentColor"/><circle cx="15" cy="9" r="1" fill="currentColor"/></svg>
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 19V5C21 3.89543 20.1046 3 19 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19Z"/><path d="M3 16L8 11L13 16" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 13L16 10L21 15" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <textarea id="mock-input" placeholder="发送消息，和双 AI 群聊..."></textarea>
+            <div class="mock-actions">
+              <button id="mock-send">发送</button>
+            </div>
+          </div>
+        </div>
         <div class="hero-pill">双 AI 已就绪 · 本地存储 · 免 API Key</div>
       </div>
+      
     </div>
   </section>
 
@@ -295,7 +438,6 @@
           <div class="step-num">2</div>
           <h3>下载并导入脚本</h3>
           <p>点击下载脚本文件。然后在 Tampermonkey 面板中点击“添加新脚本”，将下载的文件内容粘贴进去并保存。</p>
-          <!-- 添加 id 和 download-url 用于触发下载 -->
           <a class="inline-link" href="https://raw.githubusercontent.com/Code-ZiZi/wechat-ai/refs/heads/main/wechat-ai-pc.js" id="btn-download-step" download-url="https://raw.githubusercontent.com/Code-ZiZi/wechat-ai/refs/heads/main/wechat-ai-pc.js">下载最新版 v2.0.0 <svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg></a>
         </div>
         <div class="step reveal">
@@ -404,43 +546,137 @@
 
   /* ---------- 强制下载脚本逻辑 ---------- */
   (function () {
-    // 获取所有需要触发下载的按钮
     const downloadBtns = document.querySelectorAll('[download-url]');
 
     async function downloadScript(url, filename) {
       try {
-        // 1. 跨域拉取源码
         const response = await fetch(url);
         if (!response.ok) throw new Error('Network response was not ok');
         const text = await response.text();
-        
-        // 2. 生成 Blob 对象
         const blob = new Blob([text], { type: 'text/javascript' });
         const blobUrl = URL.createObjectURL(blob);
-        
-        // 3. 创建隐藏的 a 标签触发下载
         const a = document.createElement('a');
         a.href = blobUrl;
         a.download = filename || 'wechat-ai-pc.js';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-        
-        // 4. 释放内存
         URL.revokeObjectURL(blobUrl);
       } catch (error) {
         console.error('下载失败，降级为直接跳转:', error);
-        // 如果 fetch 被浏览器拦截（极少情况），降级为直接打开链接
         window.open(url, '_blank');
       }
     }
 
     downloadBtns.forEach(btn => {
       btn.addEventListener('click', (e) => {
-        e.preventDefault(); // 阻止 a 标签默认跳转
+        e.preventDefault();
         const url = btn.getAttribute('download-url');
         downloadScript(url, 'wechat-ai-pc.js');
       });
+    });
+  })();
+
+  /* ---------- 可交互的模拟聊天窗口 ---------- */
+  (function () {
+    const msgsContainer = document.getElementById('mock-messages');
+    const inputEl = document.getElementById('mock-input');
+    const sendBtn = document.getElementById('mock-send');
+    
+    if (!msgsContainer || !inputEl || !sendBtn) return;
+
+    // 初始化消息
+    const initialMsgs = [
+      { who: 'user', text: '帮我想个关于「爱聊」的 Slogan 吧。' },
+      { who: 'doubao', text: '「洽谈即爱聊」怎么样？谐音梗，而且很有温度。' },
+      { who: 'deepseek', text: '不错。还可以再加一句：让豆包与 DeepSeek 坐进同一个群聊。' }
+    ];
+
+    function renderMsg(msg) {
+      const row = document.createElement('div');
+      row.className = 'mock-msg-row' + (msg.who === 'user' ? ' right' : '');
+      
+      const av = document.createElement('div');
+      av.className = 'mock-avatar ' + msg.who;
+      av.textContent = msg.who === 'user' ? '我' : (msg.who === 'doubao' ? '包' : '鲸');
+      
+      const bubble = document.createElement('div');
+      bubble.className = 'mock-bubble ' + msg.who;
+      bubble.textContent = msg.text;
+      
+      row.appendChild(av);
+      row.appendChild(bubble);
+      msgsContainer.appendChild(row);
+      msgsContainer.scrollTop = msgsContainer.scrollHeight;
+    }
+
+    // 绘制初始消息
+    initialMsgs.forEach(renderMsg);
+
+    // 发送消息逻辑
+    function handleSend() {
+      const text = inputEl.value.trim();
+      if (!text) return;
+      
+      // 1. 用户消息上屏
+      inputEl.value = '';
+      sendBtn.classList.remove('active');
+      renderMsg({ who: 'user', text });
+      
+      // 2. 豆包思考中
+      const thinkRow = document.createElement('div');
+      thinkRow.className = 'mock-msg-row';
+      thinkRow.innerHTML = `
+        <div class="mock-avatar doubao">包</div>
+        <div class="mock-bubble doubao" style="padding: 12px 16px;">
+          <div class="mock-thinking"><span class="dot">·</span><span class="dot">·</span><span class="dot">·</span></div>
+        </div>
+      `;
+      msgsContainer.appendChild(thinkRow);
+      msgsContainer.scrollTop = msgsContainer.scrollHeight;
+      
+      // 3. 豆包回复 -> DeepSeek 开始思考
+      setTimeout(() => {
+        thinkRow.remove();
+        renderMsg({ who: 'doubao', text: '这是一个模拟回复。在真实安装的爱聊中，我会调用豆包网页版为你解答。' });
+        
+        const dsThinkRow = document.createElement('div');
+        dsThinkRow.className = 'mock-msg-row';
+        dsThinkRow.innerHTML = `
+          <div class="mock-avatar deepseek">鲸</div>
+          <div class="mock-bubble deepseek" style="padding: 12px 16px;">
+            <div class="mock-thinking-wave"><span>深</span><span>度</span><span>思</span><span>考</span><span>中</span></div>
+          </div>
+        `;
+        msgsContainer.appendChild(dsThinkRow);
+        msgsContainer.scrollTop = msgsContainer.scrollHeight;
+        
+        // 4. DeepSeek 最终回复
+        setTimeout(() => {
+          dsThinkRow.remove();
+          renderMsg({ who: 'deepseek', text: '我补充一下。下载脚本并安装到 Tampermonkey 后，打开官网即可体验完整的双模型接力。' });
+        }, 2000);
+        
+      }, 1500);
+    }
+
+    // 绑定输入事件
+    inputEl.addEventListener('input', () => {
+      if (inputEl.value.trim()) sendBtn.classList.add('active');
+      else sendBtn.classList.remove('active');
+    });
+
+    // 回车发送
+    inputEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        if (sendBtn.classList.contains('active')) handleSend();
+      }
+    });
+
+    // 点击发送
+    sendBtn.addEventListener('click', () => {
+      if (sendBtn.classList.contains('active')) handleSend();
     });
   })();
 </script>
