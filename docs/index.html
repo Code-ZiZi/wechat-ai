@@ -1,647 +1,723 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-theme="light">
+<html lang="zh-CN" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>爱聊 · 让豆包与 DeepSeek 坐进同一个群聊</title>
-<meta name="description" content="爱聊是一个浏览器用户脚本，把豆包与 DeepSeek 网页版接入同一个仿微信群聊窗口。">
+<title>爱聊 · WeChat.ai | 让 AI 坐进同一个群聊</title>
+<meta name="description" content="爱聊是一个浏览器用户脚本，把豆包与 DeepSeek 网页版接入同一个仿微信群聊窗口。免 API Key、本地存储、支持毛玻璃与暗色主题。">
 <style>
-  /* ============ 核心设计变量 ============ */
+  /* ============ 全局变量与重置 ============ */
   :root {
     --accent: #07c160;
     --accent-hover: #06ad56;
-    
-    /* 网页底色与文字 */
-    --bg-page: #ffffff;
-    --bg-section: #f7f7f7;
-    --text-title: #111111;
-    --text-desc: #666666;
-    --text-muted: #999999;
-    --border-light: rgba(0,0,0,0.08);
-    
-    /* 微信原生窗口变量 (Light) */
-    --wc-bg: #f5f5f5;
-    --wc-dragbar: #ededed;
-    --wc-input-bg: #ffffff;
-    --wc-text: #000000;
-    --wc-border: #e7e7e7;
-    --wc-bubble-user: #95ec69;
-    --wc-bubble-doubao: #ffffff;
-    --wc-bubble-ds: #e0eaff;
-    
-    --font: "MiSans", -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-    --nav-h: 64px;
+    --bg-dark: #000000;
+    --bg-light: #f5f5f7;
+    --text-dark: #1d1d1f;
+    --text-light: #f5f5f7;
+    --text-gray: #86868b;
+    --nav-h: 56px;
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
   }
 
-  /* 网页深色模式 */
-  [data-theme="dark"] {
-    --bg-page: #000000;
-    --bg-section: #111111;
-    --text-title: #ffffff;
-    --text-desc: #a1a1a6;
-    --text-muted: #666666;
-    --border-light: rgba(255,255,255,0.1);
-    
-    /* 微信原生窗口变量 (Dark) */
-    --wc-bg: #111111;
-    --wc-dragbar: #1e1e1e;
-    --wc-input-bg: #1e1e1e;
-    --wc-text: #e2e2e2;
-    --wc-border: #2a2a2a;
-    --wc-bubble-user: #07c160;
-    --wc-bubble-doubao: #2a2a2a;
-    --wc-bubble-ds: #2a3a55;
+  /* 亮色模式变量 */
+  html[data-theme="light"] {
+    --bg: var(--bg-light);
+    --bg-card: #ffffff;
+    --text-main: var(--text-dark);
+    --text-sub: #515154;
+    --border: rgba(0,0,0,0.08);
+    --nav-bg: rgba(255, 255, 255, 0.72);
   }
 
-  /* ============ 基础重置 ============ */
+  /* 暗色模式变量（默认） */
+  html[data-theme="dark"] {
+    --bg: var(--bg-dark);
+    --bg-card: #1c1c1e;
+    --text-main: var(--text-light);
+    --text-sub: #a1a1a6;
+    --border: rgba(255,255,255,0.1);
+    --nav-bg: rgba(0, 0, 0, 0.72);
+  }
+
   *, *::before, *::after { box-sizing: border-box; }
-  html { scroll-behavior: smooth; scroll-padding-top: calc(var(--nav-h) + 20px); }
+  html { scroll-behavior: smooth; }
   body {
-    margin: 0; font-family: var(--font); font-size: 16px; line-height: 1.6;
-    color: var(--text-title); background: var(--bg-page);
-    -webkit-font-smoothing: antialiased;
-    transition: background 0.3s, color 0.3s;
+    margin: 0; font-family: var(--font); background: var(--bg); color: var(--text-main);
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+    transition: background 0.5s ease, color 0.5s ease;
+    overflow-x: hidden;
   }
-  a { color: var(--accent); text-decoration: none; transition: opacity 0.2s; }
-  a:hover { opacity: 0.8; }
+  a { color: inherit; text-decoration: none; }
   img { max-width: 100%; display: block; }
-  
   .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 24px; }
-  .section { padding: 120px 0; }
-  .section-bg { background: var(--bg-section); }
-
-  /* 标题排版（小米风） */
-  .sec-title { font-size: 48px; font-weight: 600; text-align: center; margin: 0 0 16px; letter-spacing: -0.5px; }
-  .sec-subtitle { font-size: 18px; color: var(--text-desc); text-align: center; margin: 0 auto 64px; max-width: 600px; }
   
+  /* 标题排版（小米风） */
+  h1, h2, h3, h4 { margin: 0; font-weight: 600; letter-spacing: -0.02em; }
+  .hero-title { font-size: clamp(48px, 7vw, 84px); line-height: 1.1; font-weight: 700; margin-bottom: 20px; }
+  .hero-subtitle { font-size: clamp(20px, 2.5vw, 28px); color: var(--text-sub); font-weight: 500; margin-bottom: 40px; }
+  .section-title { font-size: clamp(32px, 4vw, 48px); margin-bottom: 16px; }
+  .section-subtitle { font-size: 18px; color: var(--text-sub); line-height: 1.5; max-width: 640px; margin: 0 auto; }
+
   /* ============ 导航栏 ============ */
   .nav {
-    position: fixed; inset: 0 0 auto 0; height: var(--nav-h); z-index: 100;
-    background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--border-light);
-    transition: background 0.3s, border-color 0.3s;
+    position: fixed; top: 0; left: 0; right: 0; height: var(--nav-h); z-index: 1000;
+    background: var(--nav-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
   }
-  [data-theme="dark"] .nav { background: rgba(0, 0, 0, 0.8); }
-  .nav-inner { height: 100%; display: flex; align-items: center; justify-content: space-between; }
+  .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 100%; max-width: 1000px; margin: 0 auto; padding: 0 20px; }
+  .brand { display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 600; letter-spacing: 0.5px; }
+  .brand-mark { width: 24px; height: 24px; border-radius: 6px; background: var(--accent); color: #fff; display: grid; place-items: center; font-size: 13px; font-weight: bold; }
+  .nav-links { display: flex; gap: 32px; font-size: 13px; font-weight: 500; }
+  .nav-links a { opacity: 0.8; transition: opacity 0.2s; cursor: pointer; }
+  .nav-links a:hover { opacity: 1; }
   
-  .brand { display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 20px; color: var(--text-title); }
-  .brand-icon { width: 32px; height: 32px; border-radius: 8px; background: var(--accent); color: #fff; display: grid; place-items: center; font-weight: bold; }
-  
-  .nav-links { display: flex; gap: 32px; font-size: 14px; }
-  .nav-links a { color: var(--text-title); text-decoration: none; }
-  .nav-links a:hover { color: var(--accent); }
-  
-  .btn-icon { background: transparent; border: none; cursor: pointer; color: var(--text-title); display: grid; place-items: center; padding: 8px; }
-
-  /* ============ Hero & 原生体验区 ============ */
-  .hero { padding-top: calc(var(--nav-h) + 80px); padding-bottom: 80px; text-align: center; overflow: hidden; }
-  .hero h1 { font-size: clamp(40px, 6vw, 72px); font-weight: 700; line-height: 1.1; margin: 0 0 24px; letter-spacing: -1px; }
-  .hero p { font-size: 20px; color: var(--text-desc); margin: 0 auto 48px; max-width: 600px; }
-  
-  .hero-actions { display: flex; justify-content: center; gap: 16px; margin-bottom: 80px; }
-  .btn { padding: 14px 32px; border-radius: 30px; font-size: 16px; font-weight: 500; text-decoration: none; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
-  .btn-primary { background: var(--accent); color: #fff !important; }
-  .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
-  .btn-outline { background: transparent; color: var(--text-title); border: 1px solid var(--border-light); }
-  .btn-outline:hover { border-color: var(--text-title); }
-
-  /* --- 原生微信窗口 --- */
-  .native-window-wrap {
-    position: relative; max-width: 900px; margin: 0 auto;
-    border-radius: 12px; box-shadow: 0 40px 100px rgba(0,0,0,0.15), 0 0 0 1px var(--border-light);
-    background: var(--wc-bg); overflow: hidden;
-    display: flex; flex-direction: column; aspect-ratio: 16/10; text-align: left;
-    transition: background 0.3s;
+  .nav-actions { display: flex; align-items: center; gap: 16px; }
+  .icon-btn {
+    background: transparent; border: none; color: var(--text-main); cursor: pointer;
+    width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%;
+    transition: background 0.2s;
   }
-  [data-theme="dark"] .native-window-wrap { box-shadow: 0 40px 100px rgba(0,0,0,0.5), 0 0 0 1px var(--border-light); }
-
-  /* 微信标题栏 */
-  .wc-titlebar {
-    height: 40px; background: var(--wc-dragbar); border-bottom: 1px solid var(--wc-border);
-    display: flex; align-items: center; justify-content: flex-end; padding: 0 16px;
-    position: relative; flex-shrink: 0; transition: background 0.3s;
+  .icon-btn:hover { background: var(--border); }
+  .icon-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  
+  /* 语言切换按钮 */
+  .lang-switch {
+    background: transparent; border: 1px solid var(--border); color: var(--text-main);
+    font-size: 12px; padding: 4px 10px; border-radius: 12px; cursor: pointer;
+    font-weight: 600; transition: all 0.2s;
   }
-  .wc-title-center { position: absolute; left: 50%; transform: translateX(-50%); font-size: 13px; font-weight: 500; color: var(--wc-text); }
-  .wc-controls { display: flex; gap: 12px; }
-  .wc-btn { width: 14px; height: 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-  .wc-btn.min { background: #febc2e; }
-  .wc-btn.max { background: #28c840; }
-  .wc-btn.close { background: #ff5f56; }
+  .lang-switch:hover { background: var(--border); }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    height: 44px; padding: 0 28px; border-radius: 22px; font-size: 15px; font-weight: 500;
+    cursor: pointer; transition: all 0.3s; border: none;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-hover); transform: scale(1.02); }
+  .btn-outline { background: transparent; color: var(--text-main); border: 1px solid var(--border); }
+  .btn-outline:hover { background: var(--border); }
+
+  /* ============ Hero 区 ============ */
+  .hero {
+    padding-top: calc(var(--nav-h) + 100px); padding-bottom: 0;
+    text-align: center; position: relative; overflow: hidden;
+    background: radial-gradient(circle at 50% 0%, rgba(7,193,96,0.15) 0%, transparent 60%);
+  }
+  .hero-actions { display: flex; gap: 16px; justify-content: center; margin-bottom: 80px; }
+  
+  .demo-wrapper {
+    position: relative; max-width: 1040px; margin: 0 auto;
+    padding: 40px 20px 0;
+    background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 100%);
+    border-radius: 40px 40px 0 0;
+    border: 1px solid var(--border); border-bottom: none;
+    display: flex; justify-content: center;
+    box-shadow: 0 -20px 80px rgba(0,0,0,0.1);
+  }
+  html[data-theme="dark"] .demo-wrapper { box-shadow: 0 -20px 80px rgba(7,193,96,0.05); }
+
+
+  #wechat-ai-ui {
+    --fs-base: 13px; --fs-sm: 12px; --fs-xs: 11px; --ui-alpha: 1;
+    --bg-main: transparent;
+    --bg-dragbar: rgba(247,247,247, calc(0.4 + 0.6 * var(--ui-alpha)));
+    --bg-msg: rgba(245,245,245, calc(0.4 + 0.6 * var(--ui-alpha)));
+    --bg-input-area: rgba(255,255,255, calc(0.4 + 0.6 * var(--ui-alpha)));
+    --bg-bubble: #ffffff; --bg-bubble-user: #95ec69; --bg-bubble-ds: #e0eaff;
+    --text-main: #2a2a2a; --text-secondary: #666666; --text-tertiary: #999999;
+    --text-bubble: #2a2a2a; --text-bubble-user: #111111; --text-bubble-ds: #1a2340;
+    --border: rgba(0,0,0,0.055); --accent: #07c160;
+    --shadow: 0 10px 36px rgba(0,0,0,0.075), 0 2px 8px rgba(0,0,0,0.035);
+    --think-light: #cccccc; --think-dark: #888888;
+
+    position: relative; width: 700px; height: 500px; max-width: 100%;
+    background: rgba(255,255,255, 0.4);
+    backdrop-filter: blur(24px) saturate(180%); -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border-radius: 10px 10px 0 0; border: 1px solid rgba(255,255,255,0.4); border-bottom: none;
+    display: flex; flex-direction: column; font-family: var(--font); font-size: var(--fs-base);
+    color: var(--text-main); box-shadow: var(--shadow); overflow: hidden; text-align: left;
+    z-index: 10;
+  }
+
+  html[data-theme="dark"] #wechat-ai-ui {
+    --bg-dragbar: rgba(28,28,28, calc(0.58 + 0.42 * var(--ui-alpha)));
+    --bg-msg: rgba(21,21,21, calc(0.58 + 0.42 * var(--ui-alpha)));
+    --bg-input-area: rgba(30,30,30, calc(0.58 + 0.42 * var(--ui-alpha)));
+    --bg-bubble: #242424; --bg-bubble-user: #07c160; --bg-bubble-ds: #2a3a55;
+    --text-main: #e2e2e2; --text-secondary: #a4a4a4; --text-tertiary: #707070;
+    --text-bubble: #e2e2e2; --text-bubble-user: #000000; --text-bubble-ds: #c8d4e8;
+    --border: rgba(0,0,0,0.55);
+    --shadow: 0 10px 36px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.35);
+    --think-light: #4d4d4d; --think-dark: #b0b0b0;
+    background: rgba(26,26,26, 0.6); border-color: rgba(255,255,255,0.1);
+  }
+
+  /* 标题栏 */
+  .mock-dragbar {
+    height: 38px; background: var(--bg-dragbar); display: flex; align-items: center; justify-content: flex-end;
+    padding: 0 12px; border-bottom: 1px solid var(--border); position: relative; flex-shrink: 0;
+  }
+  .mock-title { position: absolute; left: 50%; transform: translateX(-50%); font-size: var(--fs-sm); font-weight: 500; }
+  .mock-controls { display: flex; gap: 2px; }
+  .mock-btn { 
+    width: 36px; height: 28px; display: grid; place-items: center; border-radius: 4px; 
+    color: var(--text-secondary); cursor: pointer; font-size: 14px; transition: background 0.15s; 
+  }
+  .mock-btn:hover { background: rgba(0,0,0,0.05); }
+  html[data-theme="dark"] .mock-btn:hover { background: rgba(255,255,255,0.1); }
+  .mock-btn.close:hover { background: #e81123; color: #fff; }
 
   /* 消息区 */
-  .wc-messages {
-    flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 20px;
-    background: var(--wc-bg); transition: background 0.3s;
+  .mock-messages {
+    flex: 1; overflow-y: auto; padding: 20px; background-color: var(--bg-msg);
+    display: flex; flex-direction: column; gap: 16px; scroll-behavior: smooth;
   }
-  .wc-messages::-webkit-scrollbar { width: 6px; }
-  .wc-messages::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 3px; }
-  
-  .wc-row { display: flex; gap: 12px; max-width: 85%; animation: fade-in 0.3s ease; }
-  .wc-row.right { flex-direction: row-reverse; align-self: flex-end; }
-  @keyframes fade-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-  
-  .wc-avatar {
-    width: 40px; height: 40px; border-radius: 6px; flex-shrink: 0;
-    background-size: cover; background-position: center; background-color: #ddd;
-  }
-  .wc-avatar.user { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23fff"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>'); background-color: #07c160; background-size: 80%; background-repeat: no-repeat; }
-  .wc-avatar.doubao { background-image: url('https://lf-flow-web-cdn.doubao.com/obj/flow-doubao/doubao/chat/favicon-doubao.png'); }
-  .wc-avatar.deepseek { background-image: url('https://avatars.githubusercontent.com/u/148330874?v=4'); }
-  
-  .wc-content { display: flex; flex-direction: column; gap: 6px; max-width: calc(100% - 52px); }
-  .wc-row.right .wc-content { align-items: flex-end; }
-  
-  .wc-bubble {
-    padding: 10px 14px; border-radius: 6px; font-size: 14px; line-height: 1.6;
-    color: #000; word-break: break-word; position: relative;
-  }
-  .wc-bubble.user { background: var(--wc-bubble-user); color: #000; }
-  .wc-bubble.doubao { background: var(--wc-bubble-doubao); color: var(--wc-text); border: 1px solid var(--wc-border); }
-  .wc-bubble.deepseek { background: var(--wc-bubble-ds); color: var(--wc-text); }
-  [data-theme="dark"] .wc-bubble.user { color: #000; }
+  .mock-messages::-webkit-scrollbar { width: 6px; }
+  .mock-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
-  /* 原生思考动画 */
-  .wc-thinking { display: flex; align-items: center; height: 20px; }
-  /* 豆包三点 */
-  .think-dots { display: flex; gap: 6px; }
-  .think-dots span { width: 4px; height: 4px; border-radius: 50%; background: var(--text-muted); animation: dot-blink 1.2s infinite; }
-  .think-dots span:nth-child(2) { animation-delay: 0.2s; }
-  .think-dots span:nth-child(3) { animation-delay: 0.4s; }
-  @keyframes dot-blink { 0%, 80%, 100% { opacity: 0.3; } 40% { opacity: 1; } }
-  
-  /* DeepSeek 波浪 */
-  .think-wave { display: flex; gap: 2px; font-size: 13px; color: var(--text-muted); }
-  .think-wave span { animation: wave-anim 1.5s infinite; }
-  .think-wave span:nth-child(2) { animation-delay: 0.15s; }
-  .think-wave span:nth-child(3) { animation-delay: 0.3s; }
-  .think-wave span:nth-child(4) { animation-delay: 0.45s; }
-  .think-wave span:nth-child(5) { animation-delay: 0.6s; }
-  @keyframes wave-anim { 0%, 100% { color: var(--text-muted); transform: translateY(0); } 50% { color: var(--text-title); transform: translateY(-2px); } }
+  .wechat-ai-row { display: flex; align-items: flex-start; gap: 10px; max-width: 85%; animation: mock-fadein 0.28s cubic-bezier(0.4,0,0.2,1); }
+  @keyframes mock-fadein { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+  .wechat-ai-row.right { flex-direction: row-reverse; align-self: flex-end; }
+
+  .wechat-ai-avatar {
+    width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
+    background-size: cover; background-position: center; background-color: #ccc;
+    display: grid; place-items: center; font-size: var(--fs-base); color: #fff; font-weight: bold;
+  }
+  .wechat-ai-user .wechat-ai-avatar {
+    background-color: #e1e1e1;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23a0a0a0"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>');
+    background-size: 70%; background-repeat: no-repeat; background-position: center;
+  }
+  .wechat-ai-doubao .wechat-ai-avatar { background-image: url('https://lf-flow-web-cdn.doubao.com/obj/flow-doubao/doubao/chat/favicon-doubao.png'); }
+  .wechat-ai-deepseek .wechat-ai-avatar { background-image: url('https://avatars.githubusercontent.com/u/148330874?v=4'); }
+
+  .wechat-ai-msg-content { display: flex; flex-direction: column; gap: 4px; max-width: calc(100% - 48px); }
+  .wechat-ai-bubble {
+    padding: 10px 14px; border-radius: 8px; word-break: break-word; line-height: 1.55; font-size: var(--fs-base);
+    background: var(--bg-bubble); color: var(--text-bubble); box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  }
+  .wechat-ai-user .wechat-ai-bubble { background: var(--bg-bubble-user); color: var(--text-bubble-user); }
+  .wechat-ai-deepseek .wechat-ai-bubble { background: var(--bg-bubble-ds); color: var(--text-bubble-ds); }
+
+  /* 思考动画（严肃致敬） */
+  .mock-thinking-text { display: flex; align-items: center; color: var(--text-secondary); }
+  .mock-thinking-text .dot { font-size: 20px; line-height: 1; letter-spacing: 2px; }
+  .mock-thinking-text .dot span { transition: color 0.28s ease; color: var(--think-light); }
+  .mock-thinking-text .dot span.hi { color: var(--think-dark); }
+
+  .mock-thinking-text .wave { color: var(--think-light); animation: mock-think-sweep 1.8s ease-in-out infinite; font-size: var(--fs-base); letter-spacing: 0.5px; }
+  @keyframes mock-think-sweep {
+      0%, 100% { color: var(--think-light); }
+      25%, 55% { color: var(--think-dark); }
+  }
 
   /* 输入区 */
-  .wc-input-area {
-    height: 160px; background: var(--wc-input-bg); border-top: 1px solid var(--wc-border);
-    display: flex; flex-direction: column; flex-shrink: 0; transition: background 0.3s;
-  }
-  .wc-toolbar { height: 40px; padding: 0 16px; display: flex; align-items: center; gap: 16px; color: var(--text-muted); }
-  .wc-toolbar svg { cursor: pointer; transition: color 0.2s; width: 20px; height: 20px; }
-  .wc-toolbar svg:hover { color: var(--text-title); }
-  
-  .wc-textarea {
-    flex: 1; border: none; outline: none; resize: none; padding: 10px 16px;
-    font-size: 14px; font-family: inherit; color: var(--wc-text); background: transparent; line-height: 1.5;
-  }
-  .wc-textarea::placeholder { color: var(--text-muted); }
-  
-  .wc-actions { height: 56px; display: flex; align-items: center; justify-content: flex-end; padding: 0 16px; }
-  .wc-send-btn {
-    background: #e9e9e9; color: #999; border: none; padding: 6px 24px;
-    border-radius: 4px; font-size: 14px; cursor: default; transition: all 0.2s;
-  }
-  [data-theme="dark"] .wc-send-btn { background: #333; color: #666; }
-  .wc-send-btn.active { background: var(--accent); color: #fff; cursor: pointer; }
-  .wc-send-btn.active:hover { background: var(--accent-hover); }
+  .mock-input-area { background: var(--bg-input-area); border-top: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
+  .mock-toolbar { height: 40px; display: flex; align-items: center; padding: 0 16px; gap: 16px; border-bottom: 1px solid var(--border); }
+  .wechat-ai-tool-btn { background: transparent; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 4px; border-radius: 5px; transition: background 0.15s ease; }
+  .wechat-ai-tool-btn:hover { background: rgba(0,0,0,0.05); }
+  html[data-theme="dark"] .wechat-ai-tool-btn:hover { background: rgba(255,255,255,0.1); }
+  .wechat-ai-tool-btn svg { width: 20px; height: 20px; fill: none; stroke: none; }
+  .wechat-ai-tool-btn svg path { stroke: var(--text-secondary); transition: stroke 0.15s; }
+  .wechat-ai-tool-btn svg circle { fill: var(--text-secondary); transition: fill 0.15s; }
+  .wechat-ai-tool-btn:hover svg path { stroke: var(--text-main); }
+  .wechat-ai-tool-btn:hover svg circle { fill: var(--text-main); }
 
-  /* ============ 小米风交替图文特性区 ============ */
-  .feature-row { display: flex; align-items: center; justify-content: space-between; gap: 80px; margin-bottom: 120px; }
-  .feature-row:last-child { margin-bottom: 0; }
-  .feature-row.reverse { flex-direction: row-reverse; }
-  
-  .feature-text { flex: 1; max-width: 480px; }
-  .feature-text h3 { font-size: 36px; font-weight: 600; margin: 0 0 20px; line-height: 1.2; letter-spacing: -0.5px; }
-  .feature-text p { font-size: 18px; color: var(--text-desc); margin: 0; line-height: 1.8; }
-  
-  .feature-img { flex: 1; border-radius: 24px; overflow: hidden; background: var(--bg-section); box-shadow: 0 20px 40px rgba(0,0,0,0.05); }
-  .feature-img img { width: 100%; height: auto; transition: transform 0.5s; }
-  .feature-img:hover img { transform: scale(1.02); }
+  .mock-input-wrap { padding: 8px 16px; height: 100px; display: flex; flex-direction: column; }
+  #mock-input {
+    flex: 1; border: none; outline: none; resize: none; font-size: var(--fs-base);
+    color: var(--text-main); font-family: inherit; line-height: 1.55; background: transparent;
+  }
+  #mock-input::placeholder { color: var(--text-tertiary); }
+  .mock-actions { display: flex; justify-content: flex-end; padding: 0 16px 12px; }
+  #mock-send {
+    background: rgba(0,0,0,0.045); color: var(--text-tertiary);
+    border: none; padding: 6px 20px; border-radius: 5px; font-size: var(--fs-base);
+    cursor: default; transition: all 0.2s;
+  }
+  html[data-theme="dark"] #mock-send { background: rgba(255,255,255,0.06); }
+  #mock-send.active { background: var(--accent); color: #fff; cursor: pointer; box-shadow: 0 2px 8px rgba(7,193,96,0.28); }
+  #mock-send.active:hover { background: var(--accent-hover); }
 
-  /* ============ 步骤/FAQ/更新 ============ */
-  .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
-  .step-item { text-align: center; background: var(--bg-page); padding: 48px 32px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); border: 1px solid var(--border-light); }
-  .step-num { width: 48px; height: 48px; border-radius: 50%; background: var(--text-title); color: var(--bg-page); font-size: 20px; font-weight: bold; display: grid; place-items: center; margin: 0 auto 24px; }
-  .step-item h4 { font-size: 20px; margin: 0 0 16px; }
-  .step-item p { font-size: 15px; color: var(--text-desc); margin: 0 0 24px; }
-  .step-item a { font-weight: 500; font-size: 15px; }
 
-  .faq-list { max-width: 800px; margin: 0 auto; }
-  .faq-list details { border-bottom: 1px solid var(--border-light); }
-  .faq-list summary { padding: 32px 0; font-size: 20px; font-weight: 500; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; color: var(--text-title); }
+  /* ============ 核心特性展示 ============ */
+  .feature-section { padding: 120px 0; border-top: 1px solid var(--border); }
+  .feature-section.dark-bg { background: var(--bg-dark); color: var(--text-light); }
+  .feature-section.light-bg { background: var(--bg-light); color: var(--text-dark); }
+  
+  .feature-grid { display: flex; align-items: center; gap: 80px; }
+  .feature-grid.reverse { flex-direction: row-reverse; }
+  .feature-text { flex: 1; }
+  .feature-text h3 { font-size: 40px; margin-bottom: 24px; line-height: 1.2; }
+  .feature-text p { font-size: 18px; line-height: 1.8; opacity: 0.8; }
+  .feature-img { flex: 1.2; border-radius: 24px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
+  
+  /* ============ 安装与 FAQ ============ */
+  .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; margin-top: 60px; }
+  .step-item { text-align: left; }
+  .step-num { font-size: 56px; font-weight: 800; opacity: 0.1; line-height: 1; margin-bottom: 20px; }
+  .step-item h4 { font-size: 22px; margin-bottom: 12px; }
+  .step-item p { color: var(--text-sub); font-size: 16px; line-height: 1.6; margin-bottom: 24px; }
+  .link-btn { color: var(--accent); font-size: 15px; font-weight: 500; display: inline-flex; align-items: center; gap: 4px; cursor: pointer; }
+  .link-btn:hover { text-decoration: underline; }
+
+  .faq-list { max-width: 800px; margin: 60px auto 0; }
+  .faq-list details { border-bottom: 1px solid var(--border); padding: 24px 0; }
+  .faq-list summary { font-size: 18px; font-weight: 500; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; }
   .faq-list summary::-webkit-details-marker { display: none; }
-  .faq-list summary::after { content: "+"; font-size: 24px; font-weight: 300; color: var(--text-muted); transition: transform 0.3s; }
-  .faq-list details[open] summary::after { transform: rotate(45deg); }
-  .faq-content { padding-bottom: 32px; color: var(--text-desc); font-size: 16px; line-height: 1.8; }
-
-  .changelog { max-width: 800px; margin: 0 auto; }
-  .log-item { padding-bottom: 40px; border-left: 2px solid var(--border-light); padding-left: 32px; position: relative; }
-  .log-item::before { content: ""; position: absolute; left: -8px; top: 0; width: 14px; height: 14px; border-radius: 50%; background: var(--accent); }
-  .log-item h4 { font-size: 24px; margin: 0 0 16px; }
-  .log-item ul { margin: 0; padding-left: 20px; color: var(--text-desc); line-height: 1.8; }
+  .faq-list summary::after { content: '+'; font-size: 24px; font-weight: 300; }
+  .faq-list details[open] summary::after { content: '-'; }
+  .faq-list .answer { padding-top: 16px; color: var(--text-sub); line-height: 1.7; font-size: 16px; }
 
   /* ============ 页脚 ============ */
-  .footer { padding: 60px 0; border-top: 1px solid var(--border-light); color: var(--text-muted); font-size: 14px; display: flex; justify-content: space-between; align-items: center; }
+  .footer { border-top: 1px solid var(--border); padding: 40px 0; font-size: 14px; color: var(--text-sub); }
+  .footer-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
   .footer-links { display: flex; gap: 24px; }
-  .footer-links a { color: var(--text-muted); }
+  .footer a:hover { color: var(--text-main); }
 
-  /* 滚动动画 */
-  .reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); }
+  /* ============ 滚动动画 ============ */
+  .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); }
   .reveal.in { opacity: 1; transform: translateY(0); }
 
-  /* 响应式 */
   @media (max-width: 900px) {
-    .nav-links { display: none; }
-    .hero h1 { font-size: 40px; }
-    .sec-title { font-size: 32px; }
-    .feature-row, .feature-row.reverse { flex-direction: column; gap: 40px; text-align: center; margin-bottom: 80px; }
-    .feature-text { max-width: 100%; }
+    .feature-grid, .feature-grid.reverse { flex-direction: column; gap: 40px; }
     .steps-grid { grid-template-columns: 1fr; }
-    .footer { flex-direction: column; gap: 24px; text-align: center; }
+    .nav-links { display: none; }
+    .hero-title { font-size: 40px; }
+    .section-title { font-size: 32px; }
+    #wechat-ai-ui { width: 100%; border-radius: 10px 10px 0 0; }
   }
 </style>
 </head>
 <body>
 
+<!-- 导航栏 -->
 <header class="nav">
-  <div class="container nav-inner">
-    <a href="#" class="brand" style="text-decoration:none;">
-      <div class="brand-icon">爱</div>
-      爱聊
+  <div class="nav-inner">
+    <a href="#" class="brand">
+      <div class="brand-mark">AI</div>
+      <span data-zh="爱聊" data-en="WeChat.ai">爱聊</span>
     </a>
     <nav class="nav-links">
-      <a href="#features">核心特性</a>
-      <a href="#install">安装指南</a>
-      <a href="#faq">常见问题</a>
-      <a href="#changelog">更新日志</a>
+      <a href="#features" data-zh="核心特性" data-en="Features">核心特性</a>
+      <a href="#install" data-zh="快速安装" data-en="Install">快速安装</a>
+      <a href="#faq" data-zh="常见问题" data-en="FAQ">常见问题</a>
     </nav>
-    <button class="btn-icon" id="theme-toggle" aria-label="切换主题">
-      <svg id="icon-sun" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
-      <svg id="icon-moon" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-    </button>
+    <div class="nav-actions">
+      <button class="lang-switch" id="lang-toggle">EN</button>
+      <button class="icon-btn" id="theme-toggle" title="切换主题">
+        <svg id="icon-sun" viewBox="0 0 24 24" style="display:none"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        <svg id="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <a href="https://raw.githubusercontent.com/Code-ZiZi/wechat-ai/refs/heads/main/wechat-ai-pc.js" id="btn-download-nav" download-url="https://raw.githubusercontent.com/Code-ZiZi/wechat-ai/refs/heads/main/wechat-ai-pc.js" class="btn btn-primary" style="height: 32px; padding: 0 16px; border-radius: 16px; font-size: 13px;" data-zh="下载" data-en="Download">下载</a>
+    </div>
   </div>
 </header>
 
 <main>
-  <!-- 首屏 Hero -->
+  <!-- Hero -->
   <section class="hero">
-    <div class="container reveal">
-      <h1>洽谈即爱聊</h1>
-      <p>让豆包与 DeepSeek 坐进同一个群聊，好像和好友对话一样自然。</p>
-      <div class="hero-actions">
-        <a href="https://raw.githubusercontent.com/Code-ZiZi/wechat-ai/refs/heads/main/wechat-ai-pc.js" class="btn btn-primary download-btn" data-url="https://raw.githubusercontent.com/Code-ZiZi/wechat-ai/refs/heads/main/wechat-ai-pc.js">
-          立即下载脚本
-        </a>
-        <a href="https://github.com/Code-ZiZi/wechat-ai" target="_blank" class="btn btn-outline">查看源码</a>
-      </div>
-    </div>
-    
-    <!-- 原生级体验窗口 -->
-    <div class="container reveal">
-      <div class="native-window-wrap">
-        <!-- 微信标题栏 -->
-        <div class="wc-titlebar">
-          <div class="wc-title-center">爱聊</div>
-          <div class="wc-controls">
-            <div class="wc-btn min"></div>
-            <div class="wc-btn max"></div>
-            <div class="wc-btn close"></div>
-          </div>
-        </div>
-        
-        <!-- 消息区 -->
-        <div class="wc-messages" id="wc-messages">
-          <div class="wc-row">
-            <div class="wc-avatar doubao"></div>
-            <div class="wc-content">
-              <div class="wc-bubble doubao">「洽谈即爱聊」怎么样？谐音梗，而且很有温度。</div>
-            </div>
-          </div>
-          <div class="wc-row">
-            <div class="wc-avatar deepseek"></div>
-            <div class="wc-content">
-              <div class="wc-bubble deepseek">不错。还可以再加一句：让豆包与 DeepSeek 坐进同一个群聊。</div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- 原生输入区 -->
-        <div class="wc-input-area">
-          <div class="wc-toolbar">
-            <!-- 表情图标 -->
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
-            <!-- 文件夹图标 -->
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-          </div>
-          <textarea class="wc-textarea" id="wc-input" placeholder=""></textarea>
-          <div class="wc-actions">
-            <button class="wc-send-btn" id="wc-send">发送</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 特性区 -->
-  <section class="section section-bg" id="features">
     <div class="container">
-      <h2 class="sec-title reveal">像原生软件，而不是网页浮层</h2>
-      <p class="sec-subtitle reveal">从窗口形态、视觉语言到动画节奏，爱聊 2.0 对 PC 微信做了一次完整的致敬与复刻。</p>
+      <h1 class="hero-title reveal" data-zh="洽谈即<span style='color:var(--accent)'>爱聊</span>" data-en="Chat is <span style='color:var(--accent)'>Love</span>">洽谈即<span style="color:var(--accent)">爱聊</span></h1>
+      <p class="hero-subtitle reveal" style="transition-delay: 0.1s;" data-zh="让豆包与 DeepSeek 坐进同一个群聊。<br>好像和好友对话一样自然。" data-en="Let Doubao and DeepSeek sit in the same group chat.<br>As natural as talking to friends.">让豆包与 DeepSeek 坐进同一个群聊。<br>好像和好友对话一样自然。</p>
       
-      <div class="feature-row reveal">
-        <div class="feature-text">
-          <h3>桌面级窗口管理</h3>
-          <p>支持拖拽移动、八向缩放、左右分屏吸附与边缘最小化。快捷键 Alt + W 随时召回窗口。</p>
-        </div>
-        <div class="feature-img">
-          <img src="https://github.com/user-attachments/assets/6f9e262a-3d0d-4b03-9626-eff524e88c16" alt="桌面级窗口管理" loading="lazy">
-        </div>
+      <div class="hero-actions reveal" style="transition-delay: 0.2s;">
+        <a href="https://raw.githubusercontent.com/Code-ZiZi/wechat-ai/refs/heads/main/wechat-ai-pc.js" id="btn-download-hero" download-url="https://raw.githubusercontent.com/Code-ZiZi/wechat-ai/refs/heads/main/wechat-ai-pc.js" class="btn btn-primary" data-zh="立即体验" data-en="Get Started">立即体验</a>
+        <a href="https://github.com/Code-ZiZi/wechat-ai" target="_blank" class="btn btn-outline" data-zh="查看源码" data-en="View Source">查看源码</a>
       </div>
 
-      <div class="feature-row reverse reveal">
-        <div class="feature-text">
-          <h3>双模型接力对话</h3>
-          <p>在同一个群聊内，DeepSeek 与豆包共享上下文，自由接力探讨，为你提供多维视角。</p>
-        </div>
-        <div class="feature-img">
-          <img src="https://github.com/user-attachments/assets/688cbee9-ad27-4bd9-b1eb-e369bd7af9e0" alt="双模型接力对话" loading="lazy">
-        </div>
-      </div>
-
-      <div class="feature-row reveal">
-        <div class="feature-text">
-          <h3>有节奏的思考动画</h3>
-          <p>用户消息上屏即刻触发动画：豆包三点渐次点亮，DeepSeek 逐字波浪扫描。回复后自动标注精确耗时。</p>
-        </div>
-        <div class="feature-img">
-          <img src="https://github.com/user-attachments/assets/9d93c3ee-4dec-4e4e-ad70-d7cf77656a61" alt="有节奏的思考动画" loading="lazy">
-        </div>
-      </div>
-
-      <div class="feature-row reverse reveal">
-        <div class="feature-text">
-          <h3>呼吸感的主题系统</h3>
-          <p>亮色、暗色与跟随系统一键切换，全窗口字号联动，30%–100% 不透明度调节，打造属于你的专属窗口。</p>
-        </div>
-        <div class="feature-img">
-          <img src="https://github.com/user-attachments/assets/03bd5e42-1978-4dc1-bb09-353c2027dc82" alt="呼吸感的主题系统" loading="lazy">
+      <!-- 展示!!! -->
+      <div class="demo-wrapper reveal" style="transition-delay: 0.3s;">
+        <div id="wechat-ai-ui">
+          <!-- 标题栏 -->
+          <div class="mock-dragbar">
+            <div class="mock-title" data-zh="爱聊" data-en="WeChat.ai">爱聊</div>
+            <div class="mock-controls">
+              <div class="mock-btn">－</div>
+              <div class="mock-btn">□</div>
+              <div class="mock-btn close">×</div>
+            </div>
+          </div>
+          
+          <!-- 消息区 -->
+          <div class="mock-messages" id="mock-messages">
+            <!-- 消息由 JS 注入 -->
+          </div>
+          
+          <!-- 输入框 -->
+          <div class="mock-input-area">
+            <div class="mock-toolbar">
+              <button class="wechat-ai-tool-btn">
+                <svg viewBox="0 0 24 24"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke-width="1.5" fill="none"/><path d="M8 14C8 14 9.5 16 12 16C14.5 16 16 14 16 14" stroke-width="1.5" stroke-linecap="round"/><circle cx="9" cy="9" r="1" /><circle cx="15" cy="9" r="1" /></svg>
+              </button>
+              <button class="wechat-ai-tool-btn">
+                <svg viewBox="0 0 24 24"><path d="M21 19V5C21 3.89543 20.1046 3 19 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19Z" stroke-width="1.5" fill="none"/><path d="M3 16L8 11L13 16" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 13L16 10L21 15" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+              <button class="wechat-ai-tool-btn">
+                <svg viewBox="0 0 24 24"><path d="M14 4L18 8L8 18H4V14L14 4Z" stroke-width="1.5" fill="none"/></svg>
+              </button>
+              <button class="wechat-ai-tool-btn">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="1.5" fill="none"/><circle cx="8" cy="12" r="1" /><circle cx="12" cy="12" r="1" /><circle cx="16" cy="12" r="1" /></svg>
+              </button>
+            </div>
+            
+            <div class="mock-input-wrap">
+              <textarea id="mock-input" data-ph-zh="发送消息，和双 AI 群聊..." data-ph-en="Type a message to chat with both AIs..."></textarea>
+            </div>
+            <div class="mock-actions">
+              <button id="mock-send" data-zh="发送" data-en="Send">发送</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- 安装步骤 -->
-  <section class="section" id="install">
+  <!-- 深色模块 -->
+  <section class="feature-section dark-bg" id="features">
     <div class="container">
-      <h2 class="sec-title reveal">三步开始使用</h2>
-      <p class="sec-subtitle reveal">爱聊是一个浏览器用户脚本，不需要 API Key，也不需要安装任何客户端。</p>
+      <div class="feature-grid reveal">
+        <div class="feature-text">
+          <h3 data-zh="桌面级的沉浸体验" data-en="Desktop-Level Immersion">桌面级的沉浸体验</h3>
+          <p data-zh="这次，我们告别了粗糙的网页浮层。全面对标 PC 微信的交互与视觉，支持原生拖拽、八向缩放、左右分屏吸附与边缘最小化。更有一键召回快捷键，让多 AI 协作如丝般顺滑。" data-en="These term，we say goodbye to clunky web overlays. Fully benchmarked against PC WeChat's interaction and visuals. Supports native dragging, 8-way resizing, split-screen snapping, and edge minimizing. Features a hotkey for instant recall.">告别粗糙的网页浮层。全面对标 PC 微信的交互与视觉，支持原生拖拽、八向缩放、左右分屏吸附与边缘最小化。更有一键召回快捷键，让多 AI 协作如丝般顺滑。</p>
+        </div>
+        <div class="feature-img">
+          <img src="https://github.com/user-attachments/assets/6f9e262a-3d0d-4b03-9626-eff524e88c16" alt="Window Management">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 浅色 -->
+  <section class="feature-section light-bg">
+    <div class="container">
+      <div class="feature-grid reverse reveal">
+        <div class="feature-text">
+          <h3 data-zh="异构双模型的接力" data-en="Heterogeneous Model Relay">异构双模型的接力</h3>
+          <p data-zh="打破单个 AI 的思维局限。在同一个群聊内，看 DeepSeek 与豆包倾听上下文，自由接力探讨，为你提供多维度的思考视角。" data-en="Break the boundaries of a single AI. Watch DeepSeek and Doubao listen to context and freely relay discussions in one group chat, providing multi-dimensional perspectives.">打破单个 AI 的思维局限。在同一个群聊内，看 DeepSeek 与豆包倾听上下文，自由接力探讨，为你提供多维度的思考视角。</p>
+        </div>
+        <div class="feature-img">
+          <img src="https://github.com/user-attachments/assets/688cbee9-ad27-4bd9-b1eb-e369bd7af9e0" alt="Dual Models">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 安装 -->
+  <section class="feature-section" id="install" style="border-top: none;">
+    <div class="container">
+      <div style="text-align: center;" class="reveal">
+        <h2 class="section-title" data-zh="三步开启双 AI 群聊" data-en="Start in 3 Steps">三步开启双 AI 群聊</h2>
+        <p class="section-subtitle" data-zh="无需 API Key，基于浏览器用户脚本运行。" data-en="No API Key required. Runs via userscript.">无需 API Key，基于浏览器用户脚本运行。</p>
+      </div>
       
       <div class="steps-grid reveal">
         <div class="step-item">
-          <div class="step-num">1</div>
-          <h4>安装脚本管理器</h4>
-          <p>在你的浏览器中安装 Tampermonkey 或 Violentmonkey，二者任选其一即可。</p>
-          <a href="https://www.tampermonkey.net/" target="_blank">前往 Tampermonkey &rarr;</a>
+          <div class="step-num">01</div>
+          <h4 data-zh="安装管理器" data-en="Install Manager">安装管理器</h4>
+          <p data-zh="在你的浏览器中安装 Tampermonkey 或 Violentmonkey 扩展程序。" data-en="Install the Tampermonkey or Violentmonkey extension in your browser.">在你的浏览器中安装 Tampermonkey 或 Violentmonkey 扩展程序。</p>
+          <a href="https://www.tampermonkey.net/" target="_blank" class="link-btn" data-zh="前往安装 →" data-en="Go to Install →">前往安装 →</a>
         </div>
         <div class="step-item">
-          <div class="step-num">2</div>
-          <h4>下载并导入脚本</h4>
-          <p>点击下载脚本文件。然后在 Tampermonkey 面板中点击“添加新脚本”，将下载的文件内容粘贴进去并保存。</p>
-          <a href="https://raw.githubusercontent.com/Code-ZiZi/wechat-ai/refs/heads/main/wechat-ai-pc.js" class="download-btn" data-url="https://raw.githubusercontent.com/Code-ZiZi/wechat-ai/refs/heads/main/wechat-ai-pc.js">下载最新版 v2.0.0 &rarr;</a>
+          <div class="step-num">02</div>
+          <h4 data-zh="下载并导入" data-en="Download & Import">下载并导入</h4>
+          <p data-zh="下载wechat-ai.javascript文件，复制其内容并粘贴到管理器的“添加新脚本”中保存。" data-en="Download the wechat-ai.javascrpit file, copy its content, and paste it into the manager's 'Add new script'.">下载爱聊脚本文件，复制其内容并粘贴到管理器的“添加新脚本”中保存。</p>
+          <a href="https://raw.githubusercontent.com/Code-ZiZi/wechat-ai/refs/heads/main/wechat-ai-pc.js" id="btn-download-step" download-url="https://raw.githubusercontent.com/Code-ZiZi/wechat-ai/refs/heads/main/wechat-ai-pc.js" class="link-btn" data-zh="下载脚本 →" data-en="Download Script →">下载脚本 →</a>
         </div>
         <div class="step-item">
-          <div class="step-num">3</div>
-          <h4>打开两个 AI 标签页</h4>
-          <p>同时打开豆包与 DeepSeek 的对话页，爱聊窗口会在页面上浮现，输入第一条消息即可开始。</p>
-          <a href="https://www.doubao.com/" target="_blank">打开豆包 &rarr;</a>
+          <div class="step-num">03</div>
+          <h4 data-zh="开启双模型" data-en="Start Chatting">开启双模型</h4>
+          <p data-zh="打开豆包与 DeepSeek 的网页版，爱聊窗口将自动浮现，输入消息即可群聊。" data-en="Open Doubao and DeepSeek websites. The chat window appears automatically.">打开豆包与 DeepSeek 的网页版，爱聊窗口将自动浮现，输入消息即可群聊。</p>
+          <a href="https://www.doubao.com/" target="_blank" class="link-btn" data-zh="打开豆包 →" data-en="Open Doubao →">打开豆包 →</a>
         </div>
       </div>
     </div>
   </section>
 
   <!-- FAQ -->
-  <section class="section section-bg" id="faq">
-    <div class="container">
-      <h2 class="sec-title reveal">常见问题</h2>
-      <p class="sec-subtitle reveal">关于原理、数据与使用边界，这里有你想知道的答案。</p>
-      
-      <div class="faq-list reveal">
+  <section class="feature-section" id="faq" style="border-top: 1px solid var(--border);">
+    <div class="container reveal">
+      <h2 class="section-title" style="text-align: center;" data-zh="常见问题" data-en="FAQ">常见问题</h2>
+      <div class="faq-list">
         <details open>
-          <summary>需要 API Key 或付费吗？</summary>
-          <div class="faq-content">不需要。爱聊通过浏览器用户脚本，直接操控豆包与 DeepSeek 的网页版输入框，所以免 Key、免付费，也无需申请任何开发者权限。</div>
+          <summary data-zh="需要 API Key 或付费吗？" data-en="Do I need an API Key or pay?">需要 API Key 或付费吗？</summary>
+          <div class="answer" data-zh="不需要。爱聊通过模拟真实用户的输入与点击行为，直接操控网页版，因此免去了申请开发者账号和配置 API Key 的繁琐步骤，且完全免费。" data-en="No. WeChat.ai directly controls the web version by simulating real user input and clicks, eliminating the need for developer accounts and API Keys. It's completely free.">不需要。爱聊通过模拟真实用户的输入与点击行为，直接操控网页版，因此免去了申请开发者账号和配置 API Key 的繁琐步骤，且完全免费。</div>
         </details>
         <details>
-          <summary>会被封号吗？</summary>
-          <div class="faq-content">原理是模拟真实的输入与点击事件，而不是爬取后端接口，请求特征与普通用户操作一致。但仍建议控制使用频率，避免高频自动刷屏——这是所有自动化方案的通用建议。</div>
+          <summary data-zh="我的聊天记录存在哪里？" data-en="Where is my chat history stored?">我的聊天记录存在哪里？</summary>
+          <div class="answer" data-zh="全部保存在浏览器的本地脚本存储（GM_setValue）中，绝不经过任何第三方服务器。清空对话即彻底删除，绝对安全私密。" data-en="All data is stored locally in your browser (GM_setValue) and never passes through any third-party servers. Clearing the chat deletes it completely.">全部保存在浏览器的本地脚本存储（GM_setValue）中，绝不经过任何第三方服务器。清空对话即彻底删除，绝对安全私密。</div>
         </details>
         <details>
-          <summary>我的聊天记录存在哪里？</summary>
-          <div class="faq-content">全部保存在浏览器的脚本存储（GM_setValue）中，不上传任何服务器。清空对话或在脚本管理器中卸载脚本，即彻底删除，别人无法访问。</div>
-        </details>
-        <details>
-          <summary>为什么只支持豆包和 DeepSeek？</summary>
-          <div class="faq-content">每家 AI 网页版的 DOM 结构都不同，需要单独适配输入框、发送按钮与回复解析。目前完成了这两家的适配，欢迎在 GitHub 提交 PR 增加新的 AI。</div>
-        </details>
-        <details>
-          <summary>两个 AI 真的在「互相聊天」吗？</summary>
-          <div class="faq-content">这是一种接力机制。你发言后由当前 AI 先回复，脚本再把它的回复作为上下文转交给另一个 AI，从而形成群聊感。轮数上限与字数上限可在脚本中调整。</div>
-        </details>
-        <details>
-          <summary>向上滑动消息列表会发生什么？</summary>
-          <div class="faq-content">会重载当前整个网页（包括豆包或 DeepSeek 页面本身），未发送的草稿将丢失。建议只在对话卡住、需要重新连接时使用。</div>
+          <summary data-zh="向上滑动消息列表会发生什么？" data-en="What happens when I scroll up?">向上滑动消息列表会发生什么？</summary>
+          <div class="answer" data-zh="会重载当前网页。建议只在对话卡住、需要重新建立与 AI 网页的长连接时使用。" data-en="It will reload the current webpage. Use this only if the chat freezes and you need to re-establish the connection.">会重载当前网页。建议只在对话卡住、需要重新建立与 AI 网页的长连接时使用。</div>
         </details>
       </div>
     </div>
   </section>
 
-  <!-- 更新日志 -->
-  <section class="section" id="changelog">
-    <div class="container">
-      <h2 class="sec-title reveal">更新日志</h2>
-      <p class="sec-subtitle reveal">自 v1.2.1 起，历经四个迭代版本的系统性重构。</p>
-      
-      <div class="changelog reveal">
-        <div class="log-item">
-          <h4>v2.0.0 <span style="font-size:14px; color:var(--accent); border:1px solid var(--accent); padding:2px 8px; border-radius:12px; vertical-align:middle; margin-left:12px;">当前版本</span></h4>
-          <ul>
-            <li>窗口形态全面对标 PC 微信：拖拽、八向缩放、边缘吸附、边缘最小化、Alt + W 召回</li>
-            <li>视觉体系彻底重构：CSS 变量设计体系，亮暗主题一键切换与全局反转</li>
-            <li>新增不透明度调节与毛玻璃外壳，消息气泡保持绝对不透明以确保长文本清晰</li>
-            <li>思考动画体系完善：三点渐次点亮与逐字波浪扫描，结束后自动显示精确耗时</li>
-            <li>核心逻辑加固：页面就绪检测、发送按钮多级兜底、时间戳快照防重发</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </section>
 </main>
 
-<footer class="footer container">
-  <div>© 2025 爱聊 · 由 Code-ZiZi 用爱发电</div>
-  <div class="footer-links">
-    <a href="https://github.com/Code-ZiZi/wechat-ai" target="_blank">GitHub</a>
-    <a href="https://github.com/Code-ZiZi/wechat-ai/issues" target="_blank">提交反馈</a>
-    <a href="https://github.com/Code-ZiZi/wechat-ai/releases" target="_blank">完整日志</a>
+<footer class="footer">
+  <div class="container footer-inner">
+    <div data-zh="© 2025 爱聊 · 由 Code-ZiZi开发" data-en="© 2025 WeChat.ai · Developed by Code-ZiZi">© 2025 爱聊 · 由 Code-ZiZi开发</div>
+    <div class="footer-links">
+      <a href="https://github.com/Code-ZiZi/wechat-ai" target="_blank">GitHub</a>
+      <a href="https://github.com/Code-ZiZi/wechat-ai/issues" target="_blank" data-zh="提交反馈" data-en="Feedback">提交反馈</a>
+      <a href="https://github.com/Code-ZiZi/wechat-ai/releases" target="_blank" data-zh="更新日志" data-en="Changelog">更新日志</a>
+    </div>
   </div>
 </footer>
 
 <script>
-  // ============ 主题切换 ============
-  (function () {
-    const root = document.documentElement;
-    const mq = window.matchMedia('(prefers-color-scheme: dark)');
-    const KEY = 'wechat-ai-theme';
-    const icons = { light: document.getElementById('icon-sun'), dark: document.getElementById('icon-moon') };
-    
-    let mode = localStorage.getItem(KEY) || (mq.matches ? 'dark' : 'light');
-    applyTheme(mode);
+  /* =========================================================
+     多语言 (i18n) 系统
+     ========================================================= */
+  (function() {
+    const KEY = 'wechat-ai-lang';
+    let currentLang = localStorage.getItem(KEY) || 'zh';
+    const toggleBtn = document.getElementById('lang-toggle');
 
-    function applyTheme(m) {
-      root.dataset.theme = m;
-      icons.light.style.display = m === 'light' ? 'block' : 'none';
-      icons.dark.style.display = m === 'dark' ? 'block' : 'none';
+    function applyLang(lang) {
+      document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+      
+      document.querySelectorAll('[data-zh]').forEach(el => {
+        if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') return;
+        el.innerHTML = lang === 'zh' ? el.getAttribute('data-zh') : el.getAttribute('data-en');
+      });
+      
+      // 替换 placeholder
+      document.querySelectorAll('[data-ph-zh]').forEach(el => {
+        el.placeholder = lang === 'zh' ? el.getAttribute('data-ph-zh') : el.getAttribute('data-ph-en');
+      });
+
+      toggleBtn.textContent = lang === 'zh' ? 'EN' : '中';
+      localStorage.setItem(KEY, lang);
     }
 
-    document.getElementById('theme-toggle').addEventListener('click', () => {
-      mode = root.dataset.theme === 'light' ? 'dark' : 'light';
-      localStorage.setItem(KEY, mode);
-      applyTheme(mode);
-    });
-    mq.addEventListener('change', () => { 
-      if (!localStorage.getItem(KEY)) applyTheme(mq.matches ? 'dark' : 'light'); 
+    // 初始化
+    applyLang(currentLang);
+
+    toggleBtn.addEventListener('click', () => {
+      currentLang = currentLang === 'zh' ? 'en' : 'zh';
+      applyLang(currentLang);
     });
   })();
 
-  // ============ 滚动淡入淡出 ============
+  /* =========================================================
+    主题
+     ========================================================= */
+  (function () {
+    const root = document.documentElement;
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const KEY = 'wechat-ai-site-theme';
+    const icons = { light: document.getElementById('icon-sun'), dark: document.getElementById('icon-moon') };
+    const order = ['light', 'dark'];
+
+    function apply(mode) {
+      root.dataset.theme = mode;
+      Object.keys(icons).forEach(k => { icons[k].style.display = k === mode ? '' : 'none'; });
+    }
+
+    let mode = localStorage.getItem(KEY) || 'dark';
+    apply(mode);
+
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      mode = mode === 'light' ? 'dark' : 'light';
+      localStorage.setItem(KEY, mode);
+      apply(mode);
+    });
+  })();
+
+  /* =========================================================
+     淡入动画
+     ========================================================= */
   (function () {
     const els = document.querySelectorAll('.reveal');
+    if (!('IntersectionObserver' in window)) { els.forEach(el => el.classList.add('in')); return; }
     const io = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) entry.target.classList.add('in');
         else entry.target.classList.remove('in');
       });
-    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
     els.forEach(el => io.observe(el));
   })();
 
-  // ============ 下载脚本 ============
+  /* =========================================================
+     强制下载逻辑
+     ========================================================= */
   (function () {
-    document.querySelectorAll('.download-btn').forEach(btn => {
-      btn.addEventListener('click', async (e) => {
+    const downloadBtns = document.querySelectorAll('[download-url]');
+    async function downloadScript(url, filename) {
+      try {
+        const response = await fetch(url);
+        const text = await response.text();
+        const blob = new Blob([text], { type: 'text/javascript' });
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = filename || 'wechat-ai-pc.js';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(blobUrl);
+      } catch (error) {
+        window.open(url, '_blank');
+      }
+    }
+    downloadBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
         e.preventDefault();
-        const url = btn.getAttribute('data-url');
-        try {
-          const res = await fetch(url);
-          if (!res.ok) throw new Error('Network error');
-          const blob = await res.blob();
-          const a = document.createElement('a');
-          a.href = URL.createObjectURL(blob);
-          a.download = 'wechat-ai-pc.user.js';
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(a.href);
-        } catch (err) {
-          window.open(url, '_blank');
-        }
+        downloadScript(btn.getAttribute('download-url'), 'wechat-ai-pc.js');
       });
     });
   })();
 
-  // ============ 体验区原生动效模拟 ============
+  /* =========================================================
+     交互演示
+     ========================================================= */
   (function () {
-    const msgsContainer = document.getElementById('wc-messages');
-    const inputEl = document.getElementById('wc-input');
-    const sendBtn = document.getElementById('wc-send');
+    const msgsContainer = document.getElementById('mock-messages');
+    const inputEl = document.getElementById('mock-input');
+    const sendBtn = document.getElementById('mock-send');
+    
     if (!msgsContainer || !inputEl || !sendBtn) return;
 
-    // 绑定输入按钮状态
-    inputEl.addEventListener('input', () => {
-      if (inputEl.value.trim()) sendBtn.classList.add('active');
-      else sendBtn.classList.remove('active');
-    });
+    //默认消息
+    function getInitialMsgs() {
+      const isZh = document.documentElement.lang === 'zh-CN';
+      return isZh ? [
+        { who: 'user', text: '帮我想个关于「爱聊」的 Slogan 吧。' },
+        { who: 'doubao', text: '「洽谈即爱聊」怎么样？谐音梗，而且很有情怀。' },
+        { who: 'deepseek', text: '不错。还可以再加一句：让豆包与 DeepSeek 坐进同一个群聊。' }
+      ] : [
+        { who: 'user', text: 'Help me come up with a slogan for "WeChat.ai".' },
+        { who: 'doubao', text: 'How about "Chat is Love"? It uses a pun and feels warm.' },
+        { who: 'deepseek', text: 'Not bad. You can add: Let Doubao and DeepSeek sit in the same group chat.' }
+      ];
+    }
 
-    // 回车发送
-    inputEl.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        if (sendBtn.classList.contains('active')) sendMsg();
-      }
-    });
+    function renderMsg(msg) {
+      const row = document.createElement('div');
+      row.className = 'wechat-ai-row wechat-ai-' + msg.who + (msg.who === 'user' ? ' right' : '');
+      
+      const av = document.createElement('div');
+      av.className = 'wechat-ai-avatar';
+      
+      const contentWrap = document.createElement('div');
+      contentWrap.className = 'wechat-ai-msg-content';
+      
+      const bubble = document.createElement('div');
+      bubble.className = 'wechat-ai-bubble';
+      bubble.textContent = msg.text;
+      
+      contentWrap.appendChild(bubble);
+      row.appendChild(av);
+      row.appendChild(contentWrap);
+      msgsContainer.appendChild(row);
+      msgsContainer.scrollTop = msgsContainer.scrollHeight;
+    }
 
-    sendBtn.addEventListener('click', () => {
-      if (sendBtn.classList.contains('active')) sendMsg();
-    });
+    //初始化
+    getInitialMsgs().forEach(renderMsg);
 
-    function sendMsg() {
+    function handleSend() {
       const text = inputEl.value.trim();
       if (!text) return;
-
-      // 1. 渲染用户消息
+      
       inputEl.value = '';
       sendBtn.classList.remove('active');
-      renderMsg('user', text);
+      renderMsg({ who: 'user', text });
       
-      // 2. 豆包思考中
-      const thinkRow = document.createElement('div');
-      thinkRow.className = 'wc-row';
-      thinkRow.innerHTML = `
-        <div class="wc-avatar doubao"></div>
-        <div class="wc-content">
-          <div class="wc-bubble doubao">
-            <div class="wc-thinking">
-              <div class="think-dots"><span></span><span></span><span></span></div>
+      const isZh = document.documentElement.lang === 'zh-CN';
+
+      //豆包思考动画
+      const thinkRow1 = document.createElement('div');
+      thinkRow1.className = 'wechat-ai-row wechat-ai-doubao';
+      thinkRow1.innerHTML = `
+        <div class="wechat-ai-avatar"></div>
+        <div class="wechat-ai-msg-content">
+          <div class="wechat-ai-bubble" style="padding: 12px 14px;">
+            <div class="mock-thinking-text">
+              <span class="dot"><span class="hi">·</span><span>·</span><span>·</span></span>
             </div>
           </div>
         </div>
       `;
-      msgsContainer.appendChild(thinkRow);
-      scrollBottom();
-
-      // 3. 豆包回复 -> DeepSeek 接力
+      msgsContainer.appendChild(thinkRow1);
+      msgsContainer.scrollTop = msgsContainer.scrollHeight;
+      
+      let frame = 0;
+      const frames = [[1,0,0],[1,1,0],[1,1,1],[0,1,1],[0,0,1],[0,0,0]];
+      const dots = thinkRow1.querySelectorAll('.dot span');
+      const timer1 = setInterval(() => {
+        const f = frames[frame % 6];
+        dots.forEach((d, i) => d.classList.toggle('hi', !!f[i]));
+        frame++;
+      }, 300);
+      
       setTimeout(() => {
-        thinkRow.remove();
-        renderMsg('doubao', '这是一个基于原生动画模拟的回复。在真实的爱聊中，我会通过网页版为你解答。');
+        clearInterval(timer1);
+        thinkRow1.remove();
+        renderMsg({ 
+          who: 'doubao', 
+          text: isZh ? '这是一个模拟回复。在真实安装的爱聊中，我会调用豆包网页版为你解答。' : 'This is a simulated reply. In the real installed version, I would use the Doubao web version to answer.' 
+        });
         
-        setTimeout(() => {
-          const dsThinkRow = document.createElement('div');
-          dsThinkRow.className = 'wc-row';
-          dsThinkRow.innerHTML = `
-            <div class="wc-avatar deepseek"></div>
-            <div class="wc-content">
-              <div class="wc-bubble deepseek">
-                <div class="wc-thinking">
-                  <div class="think-wave"><span>深</span><span>度</span><span>思</span><span>考</span><span>中</span></div>
-                </div>
-              </div>
+        //DeepSeek思考动画(严肃致敬)
+        const thinkRow2 = document.createElement('div');
+        thinkRow2.className = 'wechat-ai-row wechat-ai-deepseek';
+        
+        const chars = (isZh ? '深度思考中' : 'Thinking').split('');
+        const waveHTML = chars.map((ch, i) => 
+          `<span class="wave" style="animation-delay:-${(i * 0.18).toFixed(2)}s">${ch}</span>`
+        ).join('');
+
+        thinkRow2.innerHTML = `
+          <div class="wechat-ai-avatar"></div>
+          <div class="wechat-ai-msg-content">
+            <div class="wechat-ai-bubble" style="padding: 12px 14px;">
+              <div class="mock-thinking-text">${waveHTML}</div>
             </div>
-          `;
-          msgsContainer.appendChild(dsThinkRow);
-          scrollBottom();
-
-          setTimeout(() => {
-            dsThinkRow.remove();
-            renderMsg('deepseek', '接力成功。安装 Tampermonkey 并下载脚本后，即可在真实的豆包和 DeepSeek 页面体验。');
-          }, 2000);
-
-        }, 1000);
-
+          </div>
+        `;
+        msgsContainer.appendChild(thinkRow2);
+        msgsContainer.scrollTop = msgsContainer.scrollHeight;
+        
+        //最终回复
+        setTimeout(() => {
+          thinkRow2.remove();
+          renderMsg({ 
+            who: 'deepseek', 
+            text: isZh ? '我补充一下。下载脚本并安装到 Tampermonkey 后，打开官网即可体验完整的双模型接力。' : 'Let me add to that. After downloading and installing the script to Tampermonkey, you can experience the full relay.' 
+          });
+        }, 2000);
+        
       }, 1500);
     }
 
-    function renderMsg(role, text) {
-      const row = document.createElement('div');
-      row.className = 'wc-row' + (role === 'user' ? ' right' : '');
-      row.innerHTML = `
-        <div class="wc-avatar ${role}"></div>
-        <div class="wc-content">
-          <div class="wc-bubble ${role}">${text}</div>
-        </div>
-      `;
-      msgsContainer.appendChild(row);
-      scrollBottom();
-    }
+    inputEl.addEventListener('input', () => {
+      sendBtn.classList.toggle('active', inputEl.value.trim().length > 0);
+    });
 
-    function scrollBottom() {
-      msgsContainer.scrollTop = msgsContainer.scrollHeight;
-    }
+    inputEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        if (sendBtn.classList.contains('active')) handleSend();
+      }
+    });
+
+    sendBtn.addEventListener('click', () => {
+      if (sendBtn.classList.contains('active')) handleSend();
+    });
+
+    // 语言重置区
+    document.getElementById('lang-toggle').addEventListener('click', () => {
+      msgsContainer.innerHTML = '';
+      getInitialMsgs().forEach(renderMsg);
+    });
   })();
 </script>
 </body>
