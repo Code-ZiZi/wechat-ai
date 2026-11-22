@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://code-zizi.github.io/wechat-ai/sitemap.xml
