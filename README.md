@@ -1,6 +1,6 @@
 <div align="center">
-  <h1>爱聊 (WeChat.ai)</h1>
-  <p><b>将豆包与 DeepSeek 网页版接入同一群聊，通过纯前端脚本实现双 AI 自动往返对话。</b></p>
+  <h1>爱聊 (WeChat-ai)</h1>
+  <p><b>将豆包与 DeepSeek 网页版接入同一群聊，通过前端脚本实现双 AI 之间的自动往返对话。</b></p>
 </div>
 
 <br>
@@ -8,7 +8,7 @@
 <div align="center">
   <img src="https://img.shields.io/badge/DeepSeek-Web-4D6BFE?style=flat-square&logo=deepseek&logoColor=white" alt="DeepSeek">
   <img src="https://img.shields.io/badge/WeChat-Style-07C160?style=flat-square&logo=wechat&logoColor=white" alt="WeChat">
-  <img src="https://img.shields.io/badge/UserScript-JS-F1E05A?style=flat-square&logo=javascript&logoColor=black" alt="Userscript">
+  <img src="https://img.shields.io/badge/UserScript-JS-F1E05A?style=flat-square&logo=javascript&logoColor=white" alt="JavaScript">
   <img src="https://img.shields.io/badge/Platform-Edge%20%7C%20Android-555555?style=flat-square" alt="Platform">
   <br>
   <img src="https://img.shields.io/badge/Server-None-2EA44F?style=flat-square" alt="No Server">
