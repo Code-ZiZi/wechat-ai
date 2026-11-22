@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>爱聊 (WeChat.ai) - 洽谈即爱聊</title>
-<meta name="description" content="让豆包与 DeepSeek 坐进同一个群聊。纯前端管理，无服务器，无需 API Key。">
+<meta name="description" content="让豆包与 DeepSeek 坐进同一个群聊。纯前端驱动，无需 API Key，无需部署服务器。">
 <style>
   :root {
     --accent: #07c160;
@@ -77,26 +77,26 @@
     height: 40px; padding: 0 24px; border-radius: 20px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s;
   }
   .btn-primary { background: var(--accent); color: #fff; border: none; }
-  .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
+  .btn-primary:hover { background: var(--accent-hover); }
 
   /* 首屏 */
   .hero { padding-top: calc(var(--nav-h) + 80px); text-align: center; }
   .hero-title { font-size: clamp(48px, 8vw, 88px); line-height: 1.1; letter-spacing: -0.04em; margin-bottom: 24px; }
   .hero-title .accent { color: var(--accent); }
-  .hero-desc { font-size: clamp(18px, 2vw, 24px); color: var(--text-secondary); max-width: 700px; margin: 0 auto 40px; line-height: 1.5; }
+  .hero-desc { font-size: clamp(18px, 2vw, 24px); color: var(--text-secondary); max-width: 800px; margin: 0 auto 30px; line-height: 1.5; }
   
-  /* 数据与理念横幅 */
-  .stats-banner {
-    display: flex; justify-content: center; gap: 64px; flex-wrap: wrap; margin-top: 48px; padding-bottom: 40px;
+  /* 理念徽章 */
+  .philosophy-badges { display: flex; justify-content: center; gap: 12px; margin-bottom: 40px; flex-wrap: wrap; }
+  .badge { 
+    display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; 
+    background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 20px; 
+    font-size: 13px; font-weight: 500; color: var(--text-secondary);
   }
-  .stat-item { text-align: center; }
-  .stat-val { font-size: 36px; font-weight: 700; color: var(--text-main); line-height: 1; margin-bottom: 8px; }
-  .stat-label { font-size: 14px; color: var(--text-secondary); letter-spacing: 0.05em; text-transform: uppercase; }
-  .stat-val .accent { color: var(--accent); }
-
+  .badge svg { width: 14px; height: 14px; stroke: var(--accent); }
+  
   /* 演示区 */
   .demo-wrapper {
-    margin-top: 40px; padding: 40px 20px 0;
+    margin-top: 60px; padding: 40px 20px 0;
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
     border-radius: 40px 40px 0 0; position: relative; overflow: hidden;
     display: flex; justify-content: center; box-shadow: 0 -20px 60px rgba(0,0,0,0.1);
@@ -105,14 +105,24 @@
 
   /* 原生复刻窗口 */
   #wechat-ai-ui {
-    --fs-base: 13px; --fs-sm: 12px; --ui-alpha: 1;
-    --bg-dragbar: rgba(247,247,247, 1);
-    --bg-msg: rgba(245,245,245, 1);
-    --bg-input-area: rgba(255,255,255, 1);
-    --bg-bubble: #ffffff; --bg-bubble-user: #95ec69; --bg-bubble-ds: #e0eaff;
-    --text-main: #2a2a2a; --text-secondary: #666666; --text-tertiary: #999999;
-    --text-bubble: #2a2a2a; --text-bubble-user: #111111; --text-bubble-ds: #1a2340;
-    --border: rgba(0,0,0,0.055); --accent: #07c160; --shadow: 0 10px 36px rgba(0,0,0,0.15);
+    --fs-base: 13px;
+    --fs-sm: 12px;
+    --ui-alpha: 1;
+    --bg-dragbar: rgba(247,247,247, calc(0.4 + 0.6 * var(--ui-alpha)));
+    --bg-msg: rgba(245,245,245, calc(0.4 + 0.6 * var(--ui-alpha)));
+    --bg-input-area: rgba(255,255,255, calc(0.4 + 0.6 * var(--ui-alpha)));
+    --bg-bubble: #ffffff;
+    --bg-bubble-user: #95ec69;
+    --bg-bubble-ds: #e0eaff;
+    --text-main: #2a2a2a;
+    --text-secondary: #666666;
+    --text-tertiary: #999999;
+    --text-bubble: #2a2a2a;
+    --text-bubble-user: #111111;
+    --text-bubble-ds: #1a2340;
+    --border: rgba(0,0,0,0.055);
+    --accent: #07c160;
+    --shadow: 0 10px 36px rgba(0,0,0,0.15);
 
     position: relative; width: 700px; height: 500px; max-width: 100%;
     background: rgba(255,255,255, 0.4); backdrop-filter: blur(24px) saturate(180%);
@@ -121,7 +131,7 @@
     color: var(--text-main); box-shadow: var(--shadow); overflow: hidden; text-align: left;
   }
   [data-theme="dark"] #wechat-ai-ui {
-    --bg-dragbar: #1e1e1e; --bg-msg: #111111; --bg-input-area: #1e1e1e;
+    --bg-dragbar: rgba(28,28,28, 0.8); --bg-msg: rgba(21,21,21, 0.8); --bg-input-area: rgba(30,30,30, 0.8);
     --bg-bubble: #242424; --bg-bubble-user: #07c160; --bg-bubble-ds: #2a3a55;
     --text-main: #e2e2e2; --text-secondary: #a4a4a4; --text-tertiary: #707070;
     --text-bubble: #e2e2e2; --text-bubble-user: #000000; --text-bubble-ds: #c8d4e8;
@@ -181,16 +191,9 @@
   .feature-content { flex: 1; }
   .feature-content h3 { font-size: 32px; margin-bottom: 20px; line-height: 1.3; }
   .feature-content p { font-size: 18px; color: var(--text-secondary); line-height: 1.8; }
-  .feature-tags { display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap; }
-  .tag { font-size: 13px; padding: 4px 12px; border-radius: 12px; background: var(--bg); border: 1px solid var(--border); color: var(--text-secondary); }
   .feature-visual { flex: 1.2; background: var(--bg-secondary); border-radius: 24px; padding: 40px; display: flex; justify-content: center; border: 1px solid var(--border); }
   .feature-visual img { border-radius: 12px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); width: 100%; }
   @media (max-width: 900px) { .feature-block, .feature-block.reverse { flex-direction: column; gap: 40px; } .feature-visual { width: 100%; padding: 20px; } }
-
-  /* 架构说明 */
-  .arch-box { background: var(--bg); border: 1px solid var(--border); border-radius: 24px; padding: 40px; text-align: center; max-width: 800px; margin: 0 auto; }
-  .arch-box h3 { font-size: 24px; margin-bottom: 16px; }
-  .arch-box p { color: var(--text-secondary); line-height: 1.8; font-size: 16px; }
 
   /* 安装 */
   .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; margin-top: 60px; }
@@ -201,14 +204,28 @@
   .link-btn:hover { text-decoration: underline; }
   @media (max-width: 768px) { .steps-grid { grid-template-columns: 1fr; } }
 
-  /* FAQ */
+  /* 超绝手风琴动画 */
   .faq-list { max-width: 800px; margin: 0 auto; }
-  .faq-list details { border-bottom: 1px solid var(--border); padding: 24px 0; }
-  .faq-list summary { font-size: 18px; font-weight: 500; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; }
-  .faq-list summary::-webkit-details-marker { display: none; }
-  .faq-list summary::after { content: '+'; font-size: 24px; color: var(--text-tertiary); font-weight: 300; }
-  .faq-list details[open] summary::after { content: '-'; }
-  .faq-list .answer { padding-top: 16px; color: var(--text-secondary); line-height: 1.7; font-size: 16px; }
+  .faq-item { border-bottom: 1px solid var(--border); }
+  .faq-question {
+    width: 100%; text-align: left; background: none; border: none; padding: 24px 0;
+    font-size: 18px; font-weight: 500; color: var(--text-main); cursor: pointer; font-family: inherit;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .faq-question::after { 
+    content: '+'; font-size: 24px; color: var(--text-tertiary); font-weight: 300; transition: transform 0.3s ease; 
+  }
+  .faq-item.active .faq-question::after { 
+    content: '+'; transform: rotate(45deg); color: var(--text-main);
+  }
+  .faq-answer-wrapper {
+    display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .faq-item.active .faq-answer-wrapper { grid-template-rows: 1fr; }
+  .faq-answer-inner {
+    overflow: hidden; color: var(--text-secondary); line-height: 1.7; font-size: 16px;
+  }
+  .faq-answer-inner p { margin: 0 0 24px 0; }
 
   .footer { border-top: 1px solid var(--border); padding: 40px 0; font-size: 14px; color: var(--text-secondary); }
   .footer-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
@@ -250,28 +267,17 @@
   <section class="hero">
     <div class="container">
       <h1 class="hero-title reveal"><span data-i18n="hero_title_1">洽谈即</span><span class="accent" data-i18n="hero_title_2">爱聊</span></h1>
-      <p class="hero-desc reveal" data-i18n="hero_desc" style="transition-delay: 0.1s;">在算法的森林里，寻找一丝人类对话的温度。<br>把顶级模型装进原生聊天窗，让灵感自然流淌。</p>
       
-      <div class="stats-banner reveal" style="transition-delay: 0.2s;">
-        <div class="stat-item">
-          <div class="stat-val"><span class="accent">0</span></div>
-          <div class="stat-label" data-i18n="stat_api">API Key</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-val"><span class="accent">0</span></div>
-          <div class="stat-label" data-i18n="stat_server">Server</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-val">100<span class="accent">%</span></div>
-          <div class="stat-label" data-i18n="stat_local">Local</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-val">2</div>
-          <div class="stat-label" data-i18n="stat_models">AI Models</div>
-        </div>
+      <!-- 理念徽章 -->
+      <div class="philosophy-badges reveal" style="transition-delay: 0.1s;">
+        <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> <span data-i18n="badge_1">No Server</span></div>
+        <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg> <span data-i18n="badge_2">No API Key</span></div>
+        <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> <span data-i18n="badge_3">Pure Frontend</span></div>
       </div>
 
-      <div class="reveal" style="transition-delay: 0.3s; margin-top: 40px;">
+      <p class="hero-desc reveal" data-i18n="hero_desc" style="transition-delay: 0.2s;">打破模型边界，让豆包与 DeepSeek 坐进同一个群聊。纯前端驱动，零配置成本，数据绝对隐私。</p>
+      
+      <div class="reveal" style="transition-delay: 0.3s; margin-bottom: 60px;">
         <a href="https://raw.githubusercontent.com/Code-ZiZi/wechat-ai/refs/heads/main/wechat-ai-pc.js" class="btn btn-primary download-btn" data-url="https://raw.githubusercontent.com/Code-ZiZi/wechat-ai/refs/heads/main/wechat-ai-pc.js" style="height: 48px; padding: 0 32px; font-size: 16px;" data-i18n="hero_btn">立即体验</a>
       </div>
 
@@ -299,70 +305,50 @@
     </div>
   </section>
 
+  <!-- 特性 1 -->
   <section class="section" id="features">
     <div class="container">
       <div class="feature-block reveal">
         <div class="feature-content">
           <h3 data-i18n="f1_title">原生级桌面体验</h3>
-          <p data-i18n="f1_desc">这不仅仅是网页浮层，而是对 PC 微信交互范式的深度致敬。完美复刻的标题栏、顺滑的八向缩放、优雅的边缘吸附，以及一键唤出的全局快捷键（Alt+W）。让复杂的 AI 调度，如同与老友交谈般自然。</p>
-          <div class="feature-tags">
-            <span class="tag">Drag & Drop</span>
-            <span class="tag">Edge Snap</span>
-            <span class="tag">Alt + W</span>
-          </div>
+          <p data-i18n="f1_desc">这不仅是网页浮层，更是对 PC 微信交互范式的深度致敬。完美复刻的标题栏、顺滑的八向缩放、优雅的边缘吸附，以及一键唤出的全局快捷键（Alt+W）。让复杂的 AI 调度，如同与老友交谈般自然。</p>
         </div>
         <div class="feature-visual"><img src="https://github.com/user-attachments/assets/6f9e262a-3d0d-4b03-9626-eff524e88c16" alt="Window"></div>
       </div>
     </div>
   </section>
 
+  <!-- 特性 2 -->
   <section class="section bg-alt">
     <div class="container">
       <div class="feature-block reverse reveal">
         <div class="feature-content">
-          <h3 data-i18n="f2_title">异构模型协同引擎</h3>
-          <p data-i18n="f2_desc">打破单体 AI 的认知茧房。我们通过纯 DOM 交互驱动，让 DeepSeek 的深邃推理与豆包的灵动生成在同一个上下文池中自由激荡。这不仅是技术的拼接，更是两个大模型之间跨越界面的思想接力。</p>
-          <div class="feature-tags">
-            <span class="tag">DeepSeek</span>
-            <span class="tag">Doubao</span>
-            <span class="tag">Auto-Relay</span>
-          </div>
+          <h3 data-i18n="f2_title">异构大模型协同</h3>
+          <p data-i18n="f2_desc">打破单体 AI 的思维局限。基于前端 DOM 监听与上下文转发机制，DeepSeek 与豆包能够在同一群聊内无缝接力。一个负责深度推演，一个负责灵感发散，为你提供多维度的思考视角。</p>
         </div>
         <div class="feature-visual"><img src="https://github.com/user-attachments/assets/688cbee9-ad27-4bd9-b1eb-e369bd7af9e0" alt="Dual AI"></div>
       </div>
     </div>
   </section>
 
+  <!-- 特性 3 -->
   <section class="section">
     <div class="container">
       <div class="feature-block reveal">
         <div class="feature-content">
-          <h3 data-i18n="f3_title">零信任数据架构</h3>
-          <p data-i18n="f3_desc">无需注册，没有云端同步，更不存在数据滥用。所有对话均通过浏览器的本地存储（GM_setValue）在沙盒中闭环流转。我们坚信，最高级别的隐私保护，就是让数据永远留在你的设备里。</p>
-          <div class="feature-tags">
-            <span class="tag">No Server</span>
-            <span class="tag">No Tracking</span>
-            <span class="tag">100% Offline Data</span>
-          </div>
+          <h3 data-i18n="f3_title">纯前端极客方案</h3>
+          <p data-i18n="f3_desc">零后端依赖，零 API 成本。不调用底层 SDK，不发送任何数据至第三方服务器。所有消息、配置与自定义样式，均通过 GM_setValue 保存在本地，捍卫你的绝对隐私。</p>
         </div>
         <div class="feature-visual"><img src="https://github.com/user-attachments/assets/03bd5e42-1978-4dc1-bb09-353c2027dc82" alt="Theme"></div>
       </div>
     </div>
   </section>
 
-  <section class="section bg-alt">
-    <div class="container">
-      <div class="arch-box reveal">
-        <h3 data-i18n="arch_title">拒绝黑盒，拥抱开放</h3>
-        <p data-i18n="arch_desc">我们不调用底层 API，不破解协议，不依赖官方 SDK。爱聊完全基于浏览器用户脚本，通过模拟输入与监听 DOM 变化，以最克制、最优雅的方式连接这两个伟大的模型。</p>
-      </div>
-    </div>
-  </section>
-
-  <section class="section" id="install">
+  <!-- 安装 -->
+  <section class="section bg-alt" id="install">
     <div class="container">
       <h2 class="section-title reveal" data-i18n="install_title">三步开始使用</h2>
-      <p class="section-subtitle reveal" data-i18n="install_subtitle">无需任何 API Key，基于前端脚本运行，支持 PC 与 Android 设备。</p>
+      <p class="section-subtitle reveal" data-i18n="install_subtitle">无需任何 API Key，基于浏览器用户脚本运行。</p>
       <div class="steps-grid reveal">
         <div class="step-item">
           <div class="step-num">01</div>
@@ -372,36 +358,45 @@
         </div>
         <div class="step-item">
           <div class="step-num">02</div>
-          <h4 data-i18n="step2_title">导入脚本</h4>
+          <h4 data-i18n="step2_title">下载并导入</h4>
           <p data-i18n="step2_desc">下载爱聊脚本文件，复制其内容并粘贴到管理器的“添加新脚本”中保存。</p>
           <a href="https://raw.githubusercontent.com/Code-ZiZi/wechat-ai/refs/heads/main/wechat-ai-pc.js" class="link-btn download-btn" data-url="https://raw.githubusercontent.com/Code-ZiZi/wechat-ai/refs/heads/main/wechat-ai-pc.js" data-i18n="step2_btn">下载脚本 →</a>
         </div>
         <div class="step-item">
           <div class="step-num">03</div>
           <h4 data-i18n="step3_title">开启双模型</h4>
-          <p data-i18n="step3_desc">同时打开豆包与 DeepSeek 网页版，爱聊窗口将自动浮现并接入群聊。</p>
+          <p data-i18n="step3_desc">打开豆包与 DeepSeek 的网页版，爱聊窗口将自动浮现，输入消息即可群聊。</p>
           <a href="https://www.doubao.com/" target="_blank" class="link-btn" data-i18n="step3_btn">打开豆包 →</a>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="section bg-alt" id="faq">
+  <!-- FAQ (5条) -->
+  <section class="section" id="faq">
     <div class="container reveal">
       <h2 class="section-title" data-i18n="faq_title">常见问题</h2>
       <div class="faq-list">
-        <details open>
-          <summary data-i18n="faq1_q">需要 API Key 或付费吗？</summary>
-          <div class="answer" data-i18n="faq1_a">不需要。爱聊完全运行在浏览器前端，通过模拟真实用户的输入与点击来操控网页版，因此零门槛、完全免费，也无需配置繁琐的开发者凭证。</div>
-        </details>
-        <details>
-          <summary data-i18n="faq2_q">我的聊天记录安全吗？</summary>
-          <div class="answer" data-i18n="faq2_a">绝对安全。所有对话与配置均通过 GM_setValue 保存在浏览器的本地沙盒中，绝不上传任何第三方服务器。清空浏览器缓存或卸载脚本，数据即彻底销毁。</div>
-        </details>
-        <details>
-          <summary data-i18n="faq3_q">为什么会触发两个 AI 的自动对话？</summary>
-          <div class="answer" data-i18n="faq3_a">脚本在后台建立了一个双向监听的通道。当豆包完成输出，脚本会提取其文本并注入到 DeepSeek 的输入框中，反之亦然。配合内置的防死循环轮次限制，实现克制的自动群聊。</div>
-        </details>
+        <div class="faq-item">
+          <button class="faq-question" data-i18n="faq1_q">需要 API Key 或付费吗？</button>
+          <div class="faq-answer-wrapper"><div class="faq-answer-inner"><p data-i18n="faq1_a">不需要。爱聊的核心机制是通过前端脚本模拟用户的真实输入与点击事件，直接操控网页版，因此完全免费。</p></div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" data-i18n="faq2_q">我的聊天记录会被上传吗？</button>
+          <div class="faq-answer-wrapper"><div class="faq-answer-inner"><p data-i18n="faq2_a">绝对不会。整个项目零后端依赖，所有对话记录、背景图与偏好设置均通过 GM_setValue 保存在你的浏览器本地。清除浏览器缓存或卸载脚本即彻底删除。</p></div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" data-i18n="faq3_q">向上滑动消息列表会发生什么？</button>
+          <div class="faq-answer-wrapper"><div class="faq-answer-inner"><p data-i18n="faq3_a">这会触发重载机制，刷新当前所在的豆包或 DeepSeek 网页。建议仅在双 AI 对话卡住、需要重新建立连接时使用。请注意这会导致未发送的草稿丢失。</p></div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" data-i18n="faq4_q">支持哪些设备和浏览器？</button>
+          <div class="faq-answer-wrapper"><div class="faq-answer-inner"><p data-i18n="faq4_a">PC 端推荐使用 Edge 或 Chrome 浏览器并安装 Tampermonkey 插件；移动端（Android）推荐使用 Via 浏览器。不支持直接作为 Chrome 扩展安装，必须以 UserScript 形式导入。</p></div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" data-i18n="faq5_q">如何控制 AI 对话的轮数？</button>
+          <div class="faq-answer-wrapper"><div class="faq-answer-inner"><p data-i18n="faq5_a">在脚本源码的头部常量配置中，可以找到 DEFAULT_MAX_ROUNDS 变量。默认值为 1，代表豆包与 DeepSeek 进行一次往返。你可以根据需求将其修改为更大的数字，同时也可通过 DEFAULT_MAX_CHARS 限制单次回复的字数以防刷屏。</p></div></div>
+        </div>
       </div>
     </div>
   </section>
@@ -409,7 +404,7 @@
 
 <footer class="footer">
   <div class="container footer-inner">
-    <div data-i18n="footer_text">© 2026 爱聊 · 由 Code-ZiZi 开发</div>
+    <div data-i18n="footer_text">©2026 爱聊 · 由 程滋滋 开发</div>
     <div class="footer-links">
       <a href="https://github.com/Code-ZiZi/wechat-ai/issues" target="_blank" data-i18n="footer_issue">提交反馈</a>
       <a href="https://github.com/Code-ZiZi/wechat-ai/releases" target="_blank" data-i18n="footer_log">完整日志</a>
@@ -421,24 +416,24 @@
   const i18n = {
     zh: {
       nav_features: "特性", nav_install: "安装", nav_faq: "常见问题", nav_download: "下载脚本",
-      hero_title_1: "洽谈即", hero_title_2: "爱聊", 
-      hero_desc: "在AI的世界里，寻找一丝人类对话的温度。<br>把顶级模型装进原生聊天窗，让灵感自然流淌。",
-      stat_api: "API Key", stat_server: "服务器", stat_local: "本地存储", stat_models: "顶级模型",
-      hero_btn: "立即体验",
+      hero_title_1: "洽谈即", hero_title_2: "爱聊", hero_btn: "立即体验",
+      badge_1: "零服务器", badge_2: "无需 API Key", badge_3: "纯前端驱动",
+      hero_desc: "打破模型边界，让豆包与 DeepSeek 坐进同一个群聊。<br>纯前端驱动，零配置成本，数据绝对隐私。",
       window_title: "爱聊", input_placeholder: "发送消息...", btn_send: "发送",
-      f1_title: "原生级桌面体验", f1_desc: "这不仅仅是网页浮层，而是对 PC 微信交互范式的深度致敬。完美复刻的标题栏、顺滑的八向缩放、优雅的边缘吸附，以及一键唤出的全局快捷键（Alt+W）。让复杂的 AI 调度，如同与老友交谈般自然。",
-      f2_title: "异构模型协同引擎", f2_desc: "打破单体 AI 的认知茧房。我们通过纯 DOM 交互驱动，让 DeepSeek 的深邃推理与豆包的灵动生成在同一个上下文池中自由激荡。这不仅是技术的拼接，更是两个大模型之间跨越界面的思想接力。",
-      f3_title: "零信任数据架构", f3_desc: "无需注册，没有云端同步，更不存在数据滥用。所有对话均通过浏览器的本地存储（GM_setValue）在沙盒中闭环流转。我们坚信，最高级别的隐私保护，就是让数据永远留在你的设备里。",
-      arch_title: "拒绝黑盒，拥抱开放", arch_desc: "我们不调用底层 API，不破解协议，不依赖官方 SDK。爱聊完全基于浏览器用户脚本，通过模拟输入与监听 DOM 变化，以最克制、最优雅的方式连接这两个伟大的模型。",
-      install_title: "三步开始使用", install_subtitle: "无需任何 API Key，基于前端脚本运行，支持 PC 与 Android 设备。",
+      f1_title: "原生级桌面体验", f1_desc: "这不仅是网页浮层，更是对 PC 微信交互范式的深度致敬。完美复刻的标题栏、顺滑的八向缩放、优雅的边缘吸附，以及一键唤出的全局快捷键（Alt+W）。让复杂的 AI 调度，如同与老友交谈般自然。",
+      f2_title: "异构大模型协同", f2_desc: "打破单体 AI 的思维局限。基于前端 DOM 监听与上下文转发机制，DeepSeek 与豆包能够在同一群聊内无缝接力。一个负责深度推演，一个负责灵感发散，为你提供多维度的思考视角。",
+      f3_title: "纯前端极客方案", f3_desc: "零后端依赖，零 API 成本。不调用底层 SDK，不发送任何数据至第三方服务器。所有消息、配置与自定义样式，均通过 GM_setValue 保存在本地，捍卫你的绝对隐私。",
+      install_title: "三步开始使用", install_subtitle: "无需任何 API Key，基于浏览器用户脚本运行。",
       step1_title: "安装管理器", step1_desc: "在你的浏览器中安装 Tampermonkey 或 Violentmonkey 扩展程序。", step1_btn: "前往安装 →",
-      step2_title: "导入脚本", step2_desc: "下载爱聊脚本文件，复制其内容并粘贴到管理器的“添加新脚本”中保存。", step2_btn: "下载脚本 →",
-      step3_title: "开启双模型", step3_desc: "同时打开豆包与 DeepSeek 网页版，爱聊窗口将自动浮现并接入群聊。", step3_btn: "打开豆包 →",
+      step2_title: "下载并导入", step2_desc: "下载爱聊脚本文件，复制其内容并粘贴到管理器的“添加新脚本”中保存。", step2_btn: "下载脚本 →",
+      step3_title: "开启双模型", step3_desc: "打开豆包与 DeepSeek 的网页版，爱聊窗口将自动浮现，输入消息即可群聊。", step3_btn: "打开豆包 →",
       faq_title: "常见问题",
-      faq1_q: "需要 API Key 或付费吗？", faq1_a: "不需要。爱聊完全运行在浏览器前端，通过模拟真实用户的输入与点击来操控网页版，因此零门槛、完全免费，也无需配置繁琐的开发者凭证。",
-      faq2_q: "我的聊天记录安全吗？", faq2_a: "绝对安全。所有对话与配置均通过 GM_setValue 保存在浏览器的本地沙盒中，绝不上传任何第三方服务器。清空浏览器缓存或卸载脚本，数据即彻底销毁。",
-      faq3_q: "为什么会触发两个 AI 的自动对话？", faq3_a: "脚本在后台建立了一个双向监听的通道。当豆包完成输出，脚本会提取其文本并注入到 DeepSeek 的输入框中，反之亦然。配合内置的防死循环轮次限制，实现克制的自动群聊。",
-      footer_text: "© 2026 爱聊 · 由 Code-ZiZi 开发", footer_issue: "提交反馈", footer_log: "完整日志",
+      faq1_q: "需要 API Key 或付费吗？", faq1_a: "不需要。爱聊的核心机制是通过前端脚本模拟用户的真实输入与点击事件，直接操控网页版，因此完全免费。",
+      faq2_q: "我的聊天记录会被上传吗？", faq2_a: "绝对不会。整个项目零后端依赖，所有对话记录、背景图与偏好设置均通过 GM_setValue 保存在你的浏览器本地。清除浏览器缓存或卸载脚本即彻底删除。",
+      faq3_q: "向上滑动消息列表会发生什么？", faq3_a: "这会触发重载机制，刷新当前所在的豆包或 DeepSeek 网页。建议仅在双 AI 对话卡住、需要重新建立连接时使用。请注意这会导致未发送的草稿丢失。",
+      faq4_q: "支持哪些设备和浏览器？", faq4_a: "PC 端推荐使用 Edge 或 Chrome 浏览器并安装 Tampermonkey 插件；移动端（Android）推荐使用 Via 浏览器。不支持直接作为 Chrome 扩展安装，必须以 UserScript 形式导入。",
+      faq5_q: "如何控制 AI 对话的轮数？", faq5_a: "在脚本源码的头部常量配置中，可以找到 DEFAULT_MAX_ROUNDS 变量。默认值为 1，代表豆包与 DeepSeek 进行一次往返。你可以根据需求将其修改为更大的数字，同时也可通过 DEFAULT_MAX_CHARS 限制单次回复的字数以防刷屏。",
+      footer_text: "©2026 爱聊 · 由 程滋滋 开发", footer_issue: "提交反馈", footer_log: "完整日志",
       mock_u1: "帮我想个关于「爱聊」的 Slogan 吧。",
       mock_d1: "「洽谈即爱聊」怎么样？谐音梗，而且很有温度。",
       mock_s1: "不错。还可以再加一句：让豆包与 DeepSeek 坐进同一个群聊。",
@@ -448,24 +443,24 @@
     },
     en: {
       nav_features: "Features", nav_install: "Install", nav_faq: "FAQ", nav_download: "Download",
-      hero_title_1: "Chat is ", hero_title_2: "WeChat.ai", 
-      hero_desc: "Seeking the warmth of human conversation in the forest of algorithms.<br>Put top models into a native chat window and let ideas flow.",
-      stat_api: "API Key", stat_server: "Server", stat_local: "Local Data", stat_models: "AI Models",
-      hero_btn: "Try it Now",
+      hero_title_1: "Chat is ", hero_title_2: "WeChat.ai", hero_btn: "Try it Now",
+      badge_1: "No Server", badge_2: "No API Key", badge_3: "Pure Frontend",
+      hero_desc: "Break model boundaries. Put Doubao and DeepSeek in one group chat.<br>Pure frontend, zero config, absolute privacy.",
       window_title: "WeChat.ai", input_placeholder: "Type a message...", btn_send: "Send",
-      f1_title: "Native Desktop Experience", f1_desc: "More than a web popup, it's a tribute to PC WeChat's interaction paradigm. A perfectly replicated title bar, 8-way resizing, elegant edge snapping, and an Alt+W global shortcut. Complex AI orchestration feels as natural as chatting with an old friend.",
-      f2_title: "Heterogeneous Model Engine", f2_desc: "Break the cognitive cocoon of single AI. Driven by pure DOM interaction, DeepSeek's profound reasoning and Doubao's agile generation collide in the same context pool. This is a relay of thoughts across two great models.",
-      f3_title: "Zero-Trust Architecture", f3_desc: "No registration, no cloud sync, and no data abuse. All conversations circulate in a sandbox via local browser storage (GM_setValue). We firmly believe the highest level of privacy is keeping data on your device.",
-      arch_title: "No Black Box. Stay Open.", arch_desc: "We don't call underlying APIs, crack protocols, or rely on official SDKs. WeChat.ai is entirely based on a userscript, connecting these two great models through simulated input and DOM monitoring in the most restrained and elegant way.",
-      install_title: "Get Started in 3 Steps", install_subtitle: "No API Key needed. Runs on frontend scripts, supporting PC & Android.",
-      step1_title: "Install Manager", step1_desc: "Install the Tampermonkey or Violentmonkey extension in your browser.", step1_btn: "Install Now →",
-      step2_title: "Import Script", step2_desc: "Download the script and paste its content into your manager.", step2_btn: "Download →",
-      step3_title: "Open AI Tabs", step3_desc: "Open both Doubao and DeepSeek web versions. The window will appear automatically.", step3_btn: "Open Doubao →",
+      f1_title: "Native Window Experience", f1_desc: "Not just a web popup, but a deep tribute to PC WeChat. Flawless title bar, 8-way resize, elegant edge snapping, and Alt+W summon. Making complex AI scheduling feel natural.",
+      f2_title: "Heterogeneous AI Collaboration", f2_desc: "Break single AI limits. Based on DOM observation and context forwarding, DeepSeek and Doubao seamlessly relay in one chat. One for deep reasoning, the other for inspiration.",
+      f3_title: "Pure Frontend Geek Solution", f3_desc: "Zero backend, zero API cost. No SDK, no data sent to third-party servers. All messages and configs are saved locally via GM_setValue, safeguarding your absolute privacy.",
+      install_title: "Get Started", install_subtitle: "No API Key needed. Runs on browser userscripts.",
+      step1_title: "Install Manager", step1_desc: "Install Tampermonkey or Violentmonkey extension in your browser.", step1_btn: "Install Now →",
+      step2_title: "Download Script", step2_desc: "Download the script and paste its content into your manager.", step2_btn: "Download →",
+      step3_title: "Open AI Tabs", step3_desc: "Open Doubao and DeepSeek, the window will appear automatically.", step3_btn: "Open Doubao →",
       faq_title: "FAQ",
-      faq1_q: "Need API Key or is it paid?", faq1_a: "No. WeChat.ai runs entirely on the frontend, simulating real user input and clicks to control the web interface. It's completely free and requires zero developer credentials.",
-      faq2_q: "Is my chat history secure?", faq2_a: "Absolutely. All data is saved locally via GM_setValue, with zero uploads to third-party servers. Clearing your browser cache or uninstalling the script destroys the data.",
-      faq3_q: "How does the auto-conversation work?", faq3_a: "The script establishes a bidirectional listening channel. When Doubao finishes, the script extracts the text and injects it into DeepSeek's input, and vice versa. A built-in round limiter prevents infinite loops.",
-      footer_text: "© 2026 WeChat.ai · Developed by Code-ZiZi", footer_issue: "Issues", footer_log: "Changelog",
+      faq1_q: "Need API Key or paid?", faq1_a: "No. It simulates real user input and click events via frontend scripts to control the web interface directly, making it completely free.",
+      faq2_q: "Will my chat history be uploaded?", faq2_a: "Absolutely not. Zero backend dependency. All chat history, backgrounds, and preferences are saved locally in your browser via GM_setValue. Clearing cache or uninstalling the script deletes them completely.",
+      faq3_q: "What happens on swipe up?", faq3_a: "It triggers a reload mechanism, refreshing the current Doubao or DeepSeek page. Use only when the connection is stuck. Note that unsent drafts will be lost.",
+      faq4_q: "Supported devices and browsers?", faq4_a: "PC recommends Edge/Chrome with Tampermonkey; Mobile (Android) recommends Via Browser. It cannot be installed directly as a Chrome extension; it must be imported as a UserScript.",
+      faq5_q: "How to control the chat rounds?", faq5_a: "In the script source code header, you can find the DEFAULT_MAX_ROUNDS constant. The default is 1 (one round-trip). You can increase it as needed, and use DEFAULT_MAX_CHARS to limit word count to prevent spamming.",
+      footer_text: "©2026 WeChat.ai · Developed by Cheng Zizi", footer_issue: "Issues", footer_log: "Changelog",
       mock_u1: "Give me a slogan for 'WeChat.ai'.",
       mock_d1: "How about 'Chat is WeChat.ai'? A catchy pun with warmth.",
       mock_s1: "Nice. Let's add: Put Doubao and DeepSeek in one group chat.",
@@ -517,7 +512,7 @@
 
   document.getElementById('lang-toggle').addEventListener('click', () => setLang(currentLang === 'zh' ? 'en' : 'zh'));
 
-  // 滚动
+  // 滚动动画
   const io = new IntersectionObserver((entries) => {
     entries.forEach(entry => entry.target.classList.toggle('in', entry.isIntersecting));
   }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
@@ -544,7 +539,7 @@
     });
   });
 
-  // 交互
+  // 交互窗口逻辑
   const msgsContainer = document.getElementById('mock-messages');
   const inputEl = document.getElementById('mock-input');
   const sendBtn = document.getElementById('mock-send');
@@ -646,6 +641,20 @@
     if (sendBtn.classList.contains('active')) handleSend();
   });
 
+  // FAQ
+  const faqItems = document.querySelectorAll('.faq-item');
+  faqItems.forEach(item => {
+    const btn = item.querySelector('.faq-question');
+    btn.addEventListener('click', () => {
+      const isActive = item.classList.contains('active');
+      faqItems.forEach(i => i.classList.remove('active'));
+      if (!isActive) {
+        item.classList.add('active');
+      }
+    });
+  });
+
+  // 初始化
   setLang(currentLang);
 </script>
 </body>
