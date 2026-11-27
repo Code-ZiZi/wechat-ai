@@ -32,7 +32,7 @@
   *, *::before, *::after { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
   body {
-    margin: 0; font-family: var(--font); color: var(--text-main); background: var(--bg);
+    margin: 0; font-family: var(--font); font-size: 16px; color: var(--text-main); background: var(--bg);
     -webkit-font-smoothing: antialiased; transition: background 0.3s, color 0.3s; overflow-x: hidden;
   }
   a { color: inherit; text-decoration: none; }
@@ -42,10 +42,9 @@
   .section.bg-alt { background: var(--bg-secondary); }
   
   h1, h2, h3, h4 { margin: 0; font-weight: 600; letter-spacing: -0.02em; }
-  .section-title { font-size: clamp(32px, 4vw, 48px); line-height: 1.2; margin-bottom: 16px; text-align: center; }
+  .section-title { font-size: clamp(28px, 4vw, 40px); line-height: 1.2; margin-bottom: 16px; text-align: center; }
   .section-subtitle { font-size: 18px; color: var(--text-secondary); line-height: 1.6; max-width: 600px; margin: 0 auto 60px; text-align: center; }
 
-  /* 导航 */
   .nav {
     position: fixed; top: 0; left: 0; right: 0; height: var(--nav-h); z-index: 100;
     background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px);
@@ -53,14 +52,14 @@
   }
   [data-theme="dark"] .nav { background: rgba(0, 0, 0, 0.8); }
   .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 100%; }
-  .brand { display: flex; align-items: center; gap: 12px; font-size: 20px; font-weight: 700; }
+  .brand { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 700; flex-shrink: 0; }
   .brand-mark {
     width: 32px; height: 32px; border-radius: 8px; background: var(--accent);
     color: #fff; display: grid; place-items: center; font-size: 16px; font-weight: bold;
   }
   .nav-links { display: flex; gap: 32px; font-size: 14px; font-weight: 500; color: var(--text-secondary); }
   .nav-links a:hover { color: var(--text-main); }
-  .nav-actions { display: flex; align-items: center; gap: 16px; }
+  .nav-actions { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
   
   .icon-btn {
     background: transparent; border: none; color: var(--text-secondary); cursor: pointer;
@@ -74,19 +73,17 @@
   
   .btn {
     display: inline-flex; align-items: center; justify-content: center;
-    height: 40px; padding: 0 24px; border-radius: 20px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s;
+    height: 40px; padding: 0 24px; border-radius: 20px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; white-space: nowrap;
   }
   .btn-primary { background: var(--accent); color: #fff; border: none; }
   .btn-primary:hover { background: var(--accent-hover); }
 
-  /* 首屏 */
-  .hero { padding-top: calc(var(--nav-h) + 80px); text-align: center; }
-  .hero-title { font-size: clamp(48px, 8vw, 88px); line-height: 1.1; letter-spacing: -0.04em; margin-bottom: 24px; }
+  .hero { padding-top: calc(var(--nav-h) + 60px); text-align: center; }
+  .hero-title { font-size: clamp(36px, 6vw, 56px); line-height: 1.2; letter-spacing: -0.02em; margin-bottom: 20px; font-weight: 600; }
   .hero-title .accent { color: var(--accent); }
-  .hero-desc { font-size: clamp(18px, 2vw, 24px); color: var(--text-secondary); max-width: 800px; margin: 0 auto 30px; line-height: 1.5; }
+  .hero-desc { font-size: clamp(15px, 2vw, 18px); color: var(--text-secondary); max-width: 800px; margin: 0 auto 30px; line-height: 1.6; padding: 0 16px; }
   
-  /* 理念徽章 */
-  .philosophy-badges { display: flex; justify-content: center; gap: 12px; margin-bottom: 40px; flex-wrap: wrap; }
+  .philosophy-badges { display: flex; justify-content: center; gap: 12px; margin-bottom: 40px; flex-wrap: wrap; padding: 0 16px; }
   .badge { 
     display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; 
     background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 20px; 
@@ -94,21 +91,20 @@
   }
   .badge svg { width: 14px; height: 14px; stroke: var(--accent); }
   
-  /* 演示区 */
   .demo-wrapper {
-    margin-top: 60px; padding: 40px 20px 0;
+    margin-top: 40px; padding: 40px 20px 0;
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
     border-radius: 40px 40px 0 0; position: relative; overflow: hidden;
-    display: flex; justify-content: center; box-shadow: 0 -20px 60px rgba(0,0,0,0.1);
+    display: flex; justify-content: center; align-items: flex-end;
+    min-height: 560px;
+    box-shadow: 0 -20px 60px rgba(0,0,0,0.1);
   }
   [data-theme="dark"] .demo-wrapper { background: linear-gradient(135deg, #0a0a0a 0%, #111 100%); }
 
-  /* 原生复刻窗口 */
   #wechat-ai-ui {
     --fs-base: 13px;
     --fs-sm: 12px;
     --ui-alpha: 1;
-    --bg-dragbar: rgba(247,247,247, calc(0.4 + 0.6 * var(--ui-alpha)));
     --bg-msg: rgba(245,245,245, calc(0.4 + 0.6 * var(--ui-alpha)));
     --bg-input-area: rgba(255,255,255, calc(0.4 + 0.6 * var(--ui-alpha)));
     --bg-bubble: #ffffff;
@@ -124,33 +120,32 @@
     --accent: #07c160;
     --shadow: 0 10px 36px rgba(0,0,0,0.15);
 
-    position: relative; width: 700px; height: 500px; max-width: 100%;
+    position: relative; width: 700px; height: 500px; flex-shrink: 0; max-width: 100%;
     background: rgba(255,255,255, 0.4); backdrop-filter: blur(24px) saturate(180%);
-    border-radius: 10px 10px 0 0; border: 1px solid rgba(255,255,255,0.2); border-bottom: none;
+    border-radius: 12px 12px 0 0; border: 1px solid rgba(255,255,255,0.2); border-bottom: none;
     display: flex; flex-direction: column; font-family: var(--font); font-size: var(--fs-base);
     color: var(--text-main); box-shadow: var(--shadow); overflow: hidden; text-align: left;
   }
   [data-theme="dark"] #wechat-ai-ui {
-    --bg-dragbar: rgba(28,28,28, 0.8); --bg-msg: rgba(21,21,21, 0.8); --bg-input-area: rgba(30,30,30, 0.8);
+    --bg-msg: rgba(21,21,21, 0.8); --bg-input-area: rgba(30,30,30, 0.8);
     --bg-bubble: #242424; --bg-bubble-user: #07c160; --bg-bubble-ds: #2a3a55;
     --text-main: #e2e2e2; --text-secondary: #a4a4a4; --text-tertiary: #707070;
     --text-bubble: #e2e2e2; --text-bubble-user: #000000; --text-bubble-ds: #c8d4e8;
     --border: rgba(0,0,0,0.55); background: rgba(26,26,26, 0.6); border-color: rgba(255,255,255,0.1);
   }
 
-  .mock-dragbar { height: 38px; background: var(--bg-dragbar); display: flex; align-items: center; justify-content: flex-end; padding: 0 12px; border-bottom: 1px solid var(--border); position: relative; }
-  .mock-title { position: absolute; left: 50%; transform: translateX(-50%); font-size: var(--fs-sm); font-weight: 500; }
-  .mock-controls { display: flex; gap: 2px; }
-  .mock-btn { width: 36px; height: 28px; display: grid; place-items: center; border-radius: 4px; color: var(--text-secondary); cursor: pointer; font-size: 14px; }
-  .mock-btn:hover { background: rgba(0,0,0,0.05); }
-  .mock-btn.close:hover { background: #e81123; color: #fff; }
-
-  .mock-messages { flex: 1; overflow-y: auto; padding: 20px; background-color: var(--bg-msg); display: flex; flex-direction: column; gap: 16px; scroll-behavior: smooth; }
+  .mock-messages { flex: 1; overflow-y: auto; padding: 24px 20px; background-color: var(--bg-msg); display: flex; flex-direction: column; gap: 16px; scroll-behavior: smooth; }
   .mock-messages::-webkit-scrollbar { width: 6px; }
   .mock-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
-  .wechat-ai-row { display: flex; align-items: flex-start; gap: 10px; max-width: 85%; animation: mock-fadein 0.28s ease; }
-  @keyframes mock-fadein { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+  .wechat-ai-row { 
+    display: flex; align-items: flex-start; gap: 10px; max-width: 85%; 
+    animation: bubbleIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+  }
+  @keyframes bubbleIn { 
+    0% { opacity: 0; transform: translateY(12px) scale(0.96); } 
+    100% { opacity: 1; transform: translateY(0) scale(1); } 
+  }
   .wechat-ai-row.right { flex-direction: row-reverse; align-self: flex-end; }
 
   .wechat-ai-avatar { width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0; background-size: cover; background-position: center; background-color: #ccc; display: grid; place-items: center; font-size: var(--fs-base); color: #fff; font-weight: bold; }
@@ -163,7 +158,6 @@
   .wechat-ai-user .wechat-ai-bubble { background: var(--bg-bubble-user); color: var(--text-bubble-user); }
   .wechat-ai-deepseek .wechat-ai-bubble { background: var(--bg-bubble-ds); color: var(--text-bubble-ds); }
 
-  /* 无气泡思考动画 */
   .mock-thinking-text { display: flex; align-items: center; padding: 8px 0; color: var(--text-secondary); }
   .mock-thinking-text .dot { font-size: 20px; line-height: 1; letter-spacing: 2px; }
   .mock-thinking-text .dot span { transition: color 0.28s ease; color: #cccccc; }
@@ -185,31 +179,26 @@
   #mock-send.active { background: var(--accent); color: #fff; cursor: pointer; }
   #mock-send.active:hover { background: var(--accent-hover); }
 
-  /* 特性与图文 */
   .feature-block { display: flex; align-items: center; gap: 80px; padding: 60px 0; }
   .feature-block.reverse { flex-direction: row-reverse; }
   .feature-content { flex: 1; }
-  .feature-content h3 { font-size: 32px; margin-bottom: 20px; line-height: 1.3; }
-  .feature-content p { font-size: 18px; color: var(--text-secondary); line-height: 1.8; }
+  .feature-content h3 { font-size: 28px; margin-bottom: 20px; line-height: 1.3; font-weight: 600; }
+  .feature-content p { font-size: 16px; color: var(--text-secondary); line-height: 1.8; }
   .feature-visual { flex: 1.2; background: var(--bg-secondary); border-radius: 24px; padding: 40px; display: flex; justify-content: center; border: 1px solid var(--border); }
   .feature-visual img { border-radius: 12px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); width: 100%; }
-  @media (max-width: 900px) { .feature-block, .feature-block.reverse { flex-direction: column; gap: 40px; } .feature-visual { width: 100%; padding: 20px; } }
 
-  /* 安装 */
   .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; margin-top: 60px; }
-  .step-item h4 { font-size: 20px; margin: 20px 0 12px; }
+  .step-item h4 { font-size: 18px; margin: 20px 0 12px; }
   .step-item p { color: var(--text-secondary); font-size: 15px; line-height: 1.6; margin-bottom: 20px; }
   .step-num { font-size: 48px; font-weight: 800; color: var(--border); line-height: 1; }
   .link-btn { color: var(--accent); font-size: 15px; font-weight: 500; display: inline-flex; align-items: center; gap: 4px; }
   .link-btn:hover { text-decoration: underline; }
-  @media (max-width: 768px) { .steps-grid { grid-template-columns: 1fr; } }
 
-  /* 超绝手风琴动画 */
   .faq-list { max-width: 800px; margin: 0 auto; }
   .faq-item { border-bottom: 1px solid var(--border); }
   .faq-question {
     width: 100%; text-align: left; background: none; border: none; padding: 24px 0;
-    font-size: 18px; font-weight: 500; color: var(--text-main); cursor: pointer; font-family: inherit;
+    font-size: 17px; font-weight: 500; color: var(--text-main); cursor: pointer; font-family: inherit;
     display: flex; justify-content: space-between; align-items: center;
   }
   .faq-question::after { 
@@ -223,7 +212,7 @@
   }
   .faq-item.active .faq-answer-wrapper { grid-template-rows: 1fr; }
   .faq-answer-inner {
-    overflow: hidden; color: var(--text-secondary); line-height: 1.7; font-size: 16px;
+    overflow: hidden; color: var(--text-secondary); line-height: 1.7; font-size: 15px;
   }
   .faq-answer-inner p { margin: 0 0 24px 0; }
 
@@ -234,6 +223,44 @@
 
   .reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.8s ease, transform 0.8s ease; }
   .reveal.in { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 900px) { 
+    .feature-block, .feature-block.reverse { flex-direction: column; gap: 40px; padding: 30px 0; } 
+    .feature-visual { width: 100%; padding: 20px; } 
+  }
+
+  @media (max-width: 768px) {
+    .nav-links { display: none; }
+    .nav-inner { padding: 0 16px; }
+    .nav-actions { gap: 8px; }
+    .nav-actions .btn { padding: 0 14px; font-size: 13px; }
+    .brand { gap: 8px; font-size: 18px; }
+    .brand-mark { width: 28px; height: 28px; font-size: 14px; }
+    .icon-btn { width: 28px; height: 28px; }
+    .icon-btn svg { width: 18px; height: 18px; }
+    
+    .section { padding: 60px 0; }
+    .hero { padding-top: calc(var(--nav-h) + 40px); }
+    .hero-desc { font-size: 15px; }
+    .philosophy-badges { gap: 8px; margin-bottom: 24px; }
+    .badge { padding: 4px 10px; font-size: 12px; }
+    
+    .demo-wrapper { margin-top: 20px; padding: 20px 10px 0; min-height: 460px; border-radius: 20px 20px 0 0; }
+    #wechat-ai-ui { height: 420px; border-radius: 10px 10px 0 0; }
+    .mock-messages { padding: 16px 12px; gap: 12px; }
+    .wechat-ai-avatar { width: 32px; height: 32px; }
+    .wechat-ai-msg-content { max-width: calc(100% - 42px); }
+    .wechat-ai-bubble { font-size: 13px; padding: 8px 12px; }
+    .mock-input-wrap { height: 100px; padding: 8px 12px; }
+    .mock-actions { padding: 0 12px 10px; }
+    
+    .steps-grid { grid-template-columns: 1fr; gap: 30px; margin-top: 40px; }
+    .step-item { text-align: center; }
+    
+    .faq-question { padding: 20px 0; font-size: 16px; }
+    .footer-inner { flex-direction: column; text-align: center; justify-content: center; }
+    .footer-links { justify-content: center; }
+  }
 </style>
 </head>
 <body>
@@ -268,14 +295,13 @@
     <div class="container">
       <h1 class="hero-title reveal"><span data-i18n="hero_title_1">洽谈即</span><span class="accent" data-i18n="hero_title_2">爱聊</span></h1>
       
-      <!-- 理念徽章 -->
       <div class="philosophy-badges reveal" style="transition-delay: 0.1s;">
-        <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> <span data-i18n="badge_1">No Server</span></div>
-        <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg> <span data-i18n="badge_2">No API Key</span></div>
-        <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> <span data-i18n="badge_3">Pure Frontend</span></div>
+        <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> <span data-i18n="badge_1">零服务器</span></div>
+        <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg> <span data-i18n="badge_2">无需 API Key</span></div>
+        <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> <span data-i18n="badge_3">纯前端驱动</span></div>
       </div>
 
-      <p class="hero-desc reveal" data-i18n="hero_desc" style="transition-delay: 0.2s;">打破模型边界，让豆包与 DeepSeek 坐进同一个群聊。纯前端驱动，零配置成本，数据绝对隐私。</p>
+      <p class="hero-desc reveal" data-i18n="hero_desc" style="transition-delay: 0.2s;">打破模型边界，让豆包与 DeepSeek 坐进同一个群聊。<br>纯前端驱动，零配置成本，数据绝对隐私。</p>
       
       <div class="reveal" style="transition-delay: 0.3s; margin-bottom: 60px;">
         <a href="https://raw.githubusercontent.com/Code-ZiZi/wechat-ai/refs/heads/main/wechat-ai-pc.js" class="btn btn-primary download-btn" data-url="https://raw.githubusercontent.com/Code-ZiZi/wechat-ai/refs/heads/main/wechat-ai-pc.js" style="height: 48px; padding: 0 32px; font-size: 16px;" data-i18n="hero_btn">立即体验</a>
@@ -283,14 +309,6 @@
 
       <div class="demo-wrapper reveal" style="transition-delay: 0.4s;">
         <div id="wechat-ai-ui">
-          <div class="mock-dragbar">
-            <div class="mock-title" data-i18n="window_title">爱聊</div>
-            <div class="mock-controls">
-              <div class="mock-btn">－</div>
-              <div class="mock-btn">□</div>
-              <div class="mock-btn close">×</div>
-            </div>
-          </div>
           <div class="mock-messages" id="mock-messages"></div>
           <div class="mock-input-area">
             <div class="mock-input-wrap">
@@ -305,7 +323,6 @@
     </div>
   </section>
 
-  <!-- 特性 1 -->
   <section class="section" id="features">
     <div class="container">
       <div class="feature-block reveal">
@@ -318,7 +335,6 @@
     </div>
   </section>
 
-  <!-- 特性 2 -->
   <section class="section bg-alt">
     <div class="container">
       <div class="feature-block reverse reveal">
@@ -331,7 +347,6 @@
     </div>
   </section>
 
-  <!-- 特性 3 -->
   <section class="section">
     <div class="container">
       <div class="feature-block reveal">
@@ -344,7 +359,6 @@
     </div>
   </section>
 
-  <!-- 安装 -->
   <section class="section bg-alt" id="install">
     <div class="container">
       <h2 class="section-title reveal" data-i18n="install_title">三步开始使用</h2>
@@ -372,7 +386,6 @@
     </div>
   </section>
 
-  <!-- FAQ (5条) -->
   <section class="section" id="faq">
     <div class="container reveal">
       <h2 class="section-title" data-i18n="faq_title">常见问题</h2>
@@ -394,8 +407,12 @@
           <div class="faq-answer-wrapper"><div class="faq-answer-inner"><p data-i18n="faq4_a">PC 端推荐使用 Edge 或 Chrome 浏览器并安装 Tampermonkey 插件；移动端（Android）推荐使用 Via 浏览器。不支持直接作为 Chrome 扩展安装，必须以 UserScript 形式导入。</p></div></div>
         </div>
         <div class="faq-item">
-          <button class="faq-question" data-i18n="faq5_q">如何控制 AI 对话的轮数？</button>
-          <div class="faq-answer-wrapper"><div class="faq-answer-inner"><p data-i18n="faq5_a">在脚本源码的头部常量配置中，可以找到 DEFAULT_MAX_ROUNDS 变量。默认值为 1，代表豆包与 DeepSeek 进行一次往返。你可以根据需求将其修改为更大的数字，同时也可通过 DEFAULT_MAX_CHARS 限制单次回复的字数以防刷屏。</p></div></div>
+          <button class="faq-question" data-i18n="faq5_q">使用此脚本会导致 AI 账号被封禁吗？</button>
+          <div class="faq-answer-wrapper"><div class="faq-answer-inner"><p data-i18n="faq5_a">原理是模拟真实用户的输入与点击事件，并非爬取后端接口，请求特征与普通用户操作无异。但仍建议控制使用频率，避免高频自动刷屏——这是所有自动化方案的通用建议。</p></div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" data-i18n="faq6_q">如何控制 AI 对话的轮数？</button>
+          <div class="faq-answer-wrapper"><div class="faq-answer-inner"><p data-i18n="faq6_a">在脚本源码的头部常量配置中，可以找到 DEFAULT_MAX_ROUNDS 变量。默认值为 1，代表豆包与 DeepSeek 进行一次往返。你可以根据需求将其修改为更大的数字，同时也可通过 DEFAULT_MAX_CHARS 限制单次回复的字数以防刷屏。</p></div></div>
         </div>
       </div>
     </div>
@@ -419,7 +436,7 @@
       hero_title_1: "洽谈即", hero_title_2: "爱聊", hero_btn: "立即体验",
       badge_1: "零服务器", badge_2: "无需 API Key", badge_3: "纯前端驱动",
       hero_desc: "打破模型边界，让豆包与 DeepSeek 坐进同一个群聊。<br>纯前端驱动，零配置成本，数据绝对隐私。",
-      window_title: "爱聊", input_placeholder: "发送消息...", btn_send: "发送",
+      input_placeholder: "发送消息...", btn_send: "发送",
       f1_title: "原生级桌面体验", f1_desc: "这不仅是网页浮层，更是对 PC 微信交互范式的深度致敬。完美复刻的标题栏、顺滑的八向缩放、优雅的边缘吸附，以及一键唤出的全局快捷键（Alt+W）。让复杂的 AI 调度，如同与老友交谈般自然。",
       f2_title: "异构大模型协同", f2_desc: "打破单体 AI 的思维局限。基于前端 DOM 监听与上下文转发机制，DeepSeek 与豆包能够在同一群聊内无缝接力。一个负责深度推演，一个负责灵感发散，为你提供多维度的思考视角。",
       f3_title: "纯前端极客方案", f3_desc: "零后端依赖，零 API 成本。不调用底层 SDK，不发送任何数据至第三方服务器。所有消息、配置与自定义样式，均通过 GM_setValue 保存在本地，捍卫你的绝对隐私。",
@@ -432,7 +449,8 @@
       faq2_q: "我的聊天记录会被上传吗？", faq2_a: "绝对不会。整个项目零后端依赖，所有对话记录、背景图与偏好设置均通过 GM_setValue 保存在你的浏览器本地。清除浏览器缓存或卸载脚本即彻底删除。",
       faq3_q: "向上滑动消息列表会发生什么？", faq3_a: "这会触发重载机制，刷新当前所在的豆包或 DeepSeek 网页。建议仅在双 AI 对话卡住、需要重新建立连接时使用。请注意这会导致未发送的草稿丢失。",
       faq4_q: "支持哪些设备和浏览器？", faq4_a: "PC 端推荐使用 Edge 或 Chrome 浏览器并安装 Tampermonkey 插件；移动端（Android）推荐使用 Via 浏览器。不支持直接作为 Chrome 扩展安装，必须以 UserScript 形式导入。",
-      faq5_q: "如何控制 AI 对话的轮数？", faq5_a: "在脚本源码的头部常量配置中，可以找到 DEFAULT_MAX_ROUNDS 变量。默认值为 1，代表豆包与 DeepSeek 进行一次往返。你可以根据需求将其修改为更大的数字，同时也可通过 DEFAULT_MAX_CHARS 限制单次回复的字数以防刷屏。",
+      faq5_q: "使用此脚本会导致 AI 账号被封禁吗？", faq5_a: "原理是模拟真实用户的输入与点击事件，并非爬取后端接口，请求特征与普通用户操作无异。但仍建议控制使用频率，避免高频自动刷屏——这是所有自动化方案的通用建议。",
+      faq6_q: "如何控制 AI 对话的轮数？", faq6_a: "在脚本源码的头部常量配置中，可以找到 DEFAULT_MAX_ROUNDS 变量。默认值为 1，代表豆包与 DeepSeek 进行一次往返。你可以根据需求将其修改为更大的数字，同时也可通过 DEFAULT_MAX_CHARS 限制单次回复的字数以防刷屏。",
       footer_text: "©2026 爱聊 · 由 程滋滋 开发", footer_issue: "提交反馈", footer_log: "完整日志",
       mock_u1: "帮我想个关于「爱聊」的 Slogan 吧。",
       mock_d1: "「洽谈即爱聊」怎么样？谐音梗，而且很有温度。",
@@ -446,7 +464,7 @@
       hero_title_1: "Chat is ", hero_title_2: "WeChat.ai", hero_btn: "Try it Now",
       badge_1: "No Server", badge_2: "No API Key", badge_3: "Pure Frontend",
       hero_desc: "Break model boundaries. Put Doubao and DeepSeek in one group chat.<br>Pure frontend, zero config, absolute privacy.",
-      window_title: "WeChat.ai", input_placeholder: "Type a message...", btn_send: "Send",
+      input_placeholder: "Type a message...", btn_send: "Send",
       f1_title: "Native Window Experience", f1_desc: "Not just a web popup, but a deep tribute to PC WeChat. Flawless title bar, 8-way resize, elegant edge snapping, and Alt+W summon. Making complex AI scheduling feel natural.",
       f2_title: "Heterogeneous AI Collaboration", f2_desc: "Break single AI limits. Based on DOM observation and context forwarding, DeepSeek and Doubao seamlessly relay in one chat. One for deep reasoning, the other for inspiration.",
       f3_title: "Pure Frontend Geek Solution", f3_desc: "Zero backend, zero API cost. No SDK, no data sent to third-party servers. All messages and configs are saved locally via GM_setValue, safeguarding your absolute privacy.",
@@ -459,7 +477,8 @@
       faq2_q: "Will my chat history be uploaded?", faq2_a: "Absolutely not. Zero backend dependency. All chat history, backgrounds, and preferences are saved locally in your browser via GM_setValue. Clearing cache or uninstalling the script deletes them completely.",
       faq3_q: "What happens on swipe up?", faq3_a: "It triggers a reload mechanism, refreshing the current Doubao or DeepSeek page. Use only when the connection is stuck. Note that unsent drafts will be lost.",
       faq4_q: "Supported devices and browsers?", faq4_a: "PC recommends Edge/Chrome with Tampermonkey; Mobile (Android) recommends Via Browser. It cannot be installed directly as a Chrome extension; it must be imported as a UserScript.",
-      faq5_q: "How to control the chat rounds?", faq5_a: "In the script source code header, you can find the DEFAULT_MAX_ROUNDS constant. The default is 1 (one round-trip). You can increase it as needed, and use DEFAULT_MAX_CHARS to limit word count to prevent spamming.",
+      faq5_q: "Will this script get my AI account banned?", faq5_a: "The mechanism simulates real user input and click events, not backend API scraping, so the request signature is identical to normal user behavior. However, it is recommended to control the frequency and avoid high-frequency automated spamming—a general advice for all automation solutions.",
+      faq6_q: "How to control the chat rounds?", faq6_a: "In the script source code header, you can find the DEFAULT_MAX_ROUNDS constant. The default is 1 (one round-trip). You can increase it as needed, and use DEFAULT_MAX_CHARS to limit word count to prevent spamming.",
       footer_text: "©2026 WeChat.ai · Developed by Cheng Zizi", footer_issue: "Issues", footer_log: "Changelog",
       mock_u1: "Give me a slogan for 'WeChat.ai'.",
       mock_d1: "How about 'Chat is WeChat.ai'? A catchy pun with warmth.",
@@ -490,7 +509,6 @@
     initMockMessages();
   }
 
-  // 主题
   const root = document.documentElement;
   const mq = window.matchMedia('(prefers-color-scheme: dark)');
   const themeIcons = { light: document.getElementById('icon-sun'), dark: document.getElementById('icon-moon') };
@@ -512,13 +530,11 @@
 
   document.getElementById('lang-toggle').addEventListener('click', () => setLang(currentLang === 'zh' ? 'en' : 'zh'));
 
-  // 滚动动画
   const io = new IntersectionObserver((entries) => {
     entries.forEach(entry => entry.target.classList.toggle('in', entry.isIntersecting));
   }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
   document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
-  // 下载
   document.querySelectorAll('.download-btn').forEach(btn => {
     btn.addEventListener('click', async (e) => {
       e.preventDefault();
@@ -539,7 +555,6 @@
     });
   });
 
-  // 交互窗口逻辑
   const msgsContainer = document.getElementById('mock-messages');
   const inputEl = document.getElementById('mock-input');
   const sendBtn = document.getElementById('mock-send');
@@ -641,7 +656,6 @@
     if (sendBtn.classList.contains('active')) handleSend();
   });
 
-  // FAQ
   const faqItems = document.querySelectorAll('.faq-item');
   faqItems.forEach(item => {
     const btn = item.querySelector('.faq-question');
@@ -654,7 +668,6 @@
     });
   });
 
-  // 初始化
   setLang(currentLang);
 </script>
 </body>
