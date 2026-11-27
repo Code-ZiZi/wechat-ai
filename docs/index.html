@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>爱聊 (WeChat.ai) - 洽谈即爱聊</title>
-<meta name="description" content="让豆包与 DeepSeek 坐进同一个群聊。纯前端驱动，无需 API Key，无需部署服务器。">
+<title>爱聊 (WeChat-ai) - 洽谈即爱聊</title>
+<meta name="description" content="让豆包与 DeepSeek 坐进同一个群聊，如老友洽谈。纯前端管理，无需 API Key，无需后端代理，无需部署。">
 <style>
   :root {
     --accent: #07c160;
@@ -140,10 +140,10 @@
 
   .wechat-ai-row { 
     display: flex; align-items: flex-start; gap: 10px; max-width: 85%; 
-    animation: bubbleIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+    animation: bubbleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
   }
   @keyframes bubbleIn { 
-    0% { opacity: 0; transform: translateY(12px) scale(0.96); } 
+    0% { opacity: 0; transform: translateY(16px) scale(0.9); } 
     100% { opacity: 1; transform: translateY(0) scale(1); } 
   }
   .wechat-ai-row.right { flex-direction: row-reverse; align-self: flex-end; }
@@ -158,6 +158,9 @@
   .wechat-ai-user .wechat-ai-bubble { background: var(--bg-bubble-user); color: var(--text-bubble-user); }
   .wechat-ai-deepseek .wechat-ai-bubble { background: var(--bg-bubble-ds); color: var(--text-bubble-ds); }
 
+  .mock-think-time { font-size: 11px; color: var(--text-tertiary); margin-bottom: -2px; padding-left: 2px; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
   .mock-thinking-text { display: flex; align-items: center; padding: 8px 0; color: var(--text-secondary); }
   .mock-thinking-text .dot { font-size: 20px; line-height: 1; letter-spacing: 2px; }
   .mock-thinking-text .dot span { transition: color 0.28s ease; color: #cccccc; }
@@ -169,8 +172,17 @@
   @keyframes mock-think-sweep { 0%, 100% { color: #cccccc; } 25%, 55% { color: #888888; } }
   [data-theme="dark"] @keyframes mock-think-sweep { 0%, 100% { color: #4d4d4d; } 25%, 55% { color: #b0b0b0; } }
 
+  .mock-chips { display: flex; gap: 8px; padding: 12px 16px 0; overflow-x: auto; scrollbar-width: none; }
+  .mock-chips::-webkit-scrollbar { display: none; }
+  .chip { 
+    background: var(--bg-bubble); border: 1px solid var(--border); color: var(--text-secondary);
+    padding: 6px 12px; border-radius: 16px; font-size: 12px; cursor: pointer; white-space: nowrap;
+    transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+  }
+  .chip:hover { background: var(--bg-msg); color: var(--accent); border-color: var(--accent); }
+
   .mock-input-area { background: var(--bg-input-area); border-top: 1px solid var(--border); display: flex; flex-direction: column; }
-  .mock-input-wrap { padding: 8px 16px; height: 120px; display: flex; flex-direction: column; }
+  .mock-input-wrap { padding: 8px 16px; height: 100px; display: flex; flex-direction: column; }
   #mock-input { flex: 1; border: none; outline: none; resize: none; font-size: var(--fs-base); color: var(--text-main); font-family: inherit; line-height: 1.55; background: transparent; }
   #mock-input::placeholder { color: var(--text-tertiary); }
   .mock-actions { display: flex; justify-content: flex-end; padding: 0 16px 12px; }
@@ -245,13 +257,14 @@
     .philosophy-badges { gap: 8px; margin-bottom: 24px; }
     .badge { padding: 4px 10px; font-size: 12px; }
     
-    .demo-wrapper { margin-top: 20px; padding: 20px 10px 0; min-height: 460px; border-radius: 20px 20px 0 0; }
-    #wechat-ai-ui { height: 420px; border-radius: 10px 10px 0 0; }
+    .demo-wrapper { margin-top: 20px; padding: 20px 10px 0; min-height: 480px; border-radius: 20px 20px 0 0; }
+    #wechat-ai-ui { height: 440px; border-radius: 10px 10px 0 0; }
     .mock-messages { padding: 16px 12px; gap: 12px; }
     .wechat-ai-avatar { width: 32px; height: 32px; }
     .wechat-ai-msg-content { max-width: calc(100% - 42px); }
     .wechat-ai-bubble { font-size: 13px; padding: 8px 12px; }
-    .mock-input-wrap { height: 100px; padding: 8px 12px; }
+    .mock-chips { padding: 8px 12px 0; }
+    .mock-input-wrap { height: 90px; padding: 8px 12px; }
     .mock-actions { padding: 0 12px 10px; }
     
     .steps-grid { grid-template-columns: 1fr; gap: 30px; margin-top: 40px; }
@@ -311,6 +324,7 @@
         <div id="wechat-ai-ui">
           <div class="mock-messages" id="mock-messages"></div>
           <div class="mock-input-area">
+            <div class="mock-chips" id="mock-chips"></div>
             <div class="mock-input-wrap">
               <textarea id="mock-input" placeholder="发送消息..." data-i18n-placeholder="input_placeholder"></textarea>
             </div>
@@ -339,8 +353,8 @@
     <div class="container">
       <div class="feature-block reverse reveal">
         <div class="feature-content">
-          <h3 data-i18n="f2_title">异构大模型协同</h3>
-          <p data-i18n="f2_desc">打破单体 AI 的思维局限。基于前端 DOM 监听与上下文转发机制，DeepSeek 与豆包能够在同一群聊内无缝接力。一个负责深度推演，一个负责灵感发散，为你提供多维度的思考视角。</p>
+          <h3 data-i18n="f2_title">异构大模型协同工作</h3>
+          <p data-i18n="f2_desc">打破单体模型的思维局限。基于前端 DOM 监听与上下文转发机制，DeepSeek 与豆包能够在同一群聊内无缝接力。一个负责深度推演，一个负责灵感发散，为你提供多维度的思考视角。</p>
         </div>
         <div class="feature-visual"><img src="https://github.com/user-attachments/assets/688cbee9-ad27-4bd9-b1eb-e369bd7af9e0" alt="Dual AI"></div>
       </div>
@@ -351,7 +365,7 @@
     <div class="container">
       <div class="feature-block reveal">
         <div class="feature-content">
-          <h3 data-i18n="f3_title">纯前端极客方案</h3>
+          <h3 data-i18n="f3_title">纯前端的极客方案</h3>
           <p data-i18n="f3_desc">零后端依赖，零 API 成本。不调用底层 SDK，不发送任何数据至第三方服务器。所有消息、配置与自定义样式，均通过 GM_setValue 保存在本地，捍卫你的绝对隐私。</p>
         </div>
         <div class="feature-visual"><img src="https://github.com/user-attachments/assets/03bd5e42-1978-4dc1-bb09-353c2027dc82" alt="Theme"></div>
@@ -373,7 +387,7 @@
         <div class="step-item">
           <div class="step-num">02</div>
           <h4 data-i18n="step2_title">下载并导入</h4>
-          <p data-i18n="step2_desc">下载爱聊脚本文件，复制其内容并粘贴到管理器的“添加新脚本”中保存。</p>
+          <p data-i18n="step2_desc">下载爱聊原始脚本，复制其内容并粘贴到管理器的“添加新脚本”中保存。</p>
           <a href="https://raw.githubusercontent.com/Code-ZiZi/wechat-ai/refs/heads/main/wechat-ai-pc.js" class="link-btn download-btn" data-url="https://raw.githubusercontent.com/Code-ZiZi/wechat-ai/refs/heads/main/wechat-ai-pc.js" data-i18n="step2_btn">下载脚本 →</a>
         </div>
         <div class="step-item">
@@ -395,7 +409,7 @@
           <div class="faq-answer-wrapper"><div class="faq-answer-inner"><p data-i18n="faq1_a">不需要。爱聊的核心机制是通过前端脚本模拟用户的真实输入与点击事件，直接操控网页版，因此完全免费。</p></div></div>
         </div>
         <div class="faq-item">
-          <button class="faq-question" data-i18n="faq2_q">我的聊天记录会被上传吗？</button>
+          <button class="faq-question" data-i18n="faq2_q">我的聊天记录会被泄露吗？</button>
           <div class="faq-answer-wrapper"><div class="faq-answer-inner"><p data-i18n="faq2_a">绝对不会。整个项目零后端依赖，所有对话记录、背景图与偏好设置均通过 GM_setValue 保存在你的浏览器本地。清除浏览器缓存或卸载脚本即彻底删除。</p></div></div>
         </div>
         <div class="faq-item">
@@ -407,7 +421,7 @@
           <div class="faq-answer-wrapper"><div class="faq-answer-inner"><p data-i18n="faq4_a">PC 端推荐使用 Edge 或 Chrome 浏览器并安装 Tampermonkey 插件；移动端（Android）推荐使用 Via 浏览器。不支持直接作为 Chrome 扩展安装，必须以 UserScript 形式导入。</p></div></div>
         </div>
         <div class="faq-item">
-          <button class="faq-question" data-i18n="faq5_q">使用此脚本会导致 AI 账号被封禁吗？</button>
+          <button class="faq-question" data-i18n="faq5_q">使用此脚本会导致账号被封禁吗？</button>
           <div class="faq-answer-wrapper"><div class="faq-answer-inner"><p data-i18n="faq5_a">原理是模拟真实用户的输入与点击事件，并非爬取后端接口，请求特征与普通用户操作无异。但仍建议控制使用频率，避免高频自动刷屏——这是所有自动化方案的通用建议。</p></div></div>
         </div>
         <div class="faq-item">
@@ -452,12 +466,11 @@
       faq5_q: "使用此脚本会导致 AI 账号被封禁吗？", faq5_a: "原理是模拟真实用户的输入与点击事件，并非爬取后端接口，请求特征与普通用户操作无异。但仍建议控制使用频率，避免高频自动刷屏——这是所有自动化方案的通用建议。",
       faq6_q: "如何控制 AI 对话的轮数？", faq6_a: "在脚本源码的头部常量配置中，可以找到 DEFAULT_MAX_ROUNDS 变量。默认值为 1，代表豆包与 DeepSeek 进行一次往返。你可以根据需求将其修改为更大的数字，同时也可通过 DEFAULT_MAX_CHARS 限制单次回复的字数以防刷屏。",
       footer_text: "©2026 爱聊 · 由 程滋滋 开发", footer_issue: "提交反馈", footer_log: "完整日志",
-      mock_u1: "帮我想个关于「爱聊」的 Slogan 吧。",
-      mock_d1: "「洽谈即爱聊」怎么样？谐音梗，而且很有温度。",
-      mock_s1: "不错。还可以再加一句：让豆包与 DeepSeek 坐进同一个群聊。",
-      mock_d2: "这是一个模拟回复。在真实安装的爱聊中，我会调用豆包网页版为你解答。",
-      mock_s2: "我补充一下。下载脚本并安装到 Tampermonkey 后，打开官网即可体验。",
-      think_d: "思考中...", think_s: "深度思考中"
+      mock_u1: "周末去杭州玩，求推荐路线。",
+      mock_d1: "建议去西湖、灵隐寺，感受江南风光。",
+      mock_s1: "补充一下，周末西湖人很多，建议租个自行车，去杨公堤避开人流。刚豆包提到的灵隐寺也很不错，可以安排在同一天。",
+      chips: ["周末去杭州玩，求推荐路线。", "帮我写句夏天的咖啡文案。", "Vue3 的 ref 和 reactive 怎么选？"],
+      think_d: "思考中...", think_s: "深度思考中", think_done: "已思考（用时 {t} 秒）"
     },
     en: {
       nav_features: "Features", nav_install: "Install", nav_faq: "FAQ", nav_download: "Download",
@@ -480,12 +493,11 @@
       faq5_q: "Will this script get my AI account banned?", faq5_a: "The mechanism simulates real user input and click events, not backend API scraping, so the request signature is identical to normal user behavior. However, it is recommended to control the frequency and avoid high-frequency automated spamming—a general advice for all automation solutions.",
       faq6_q: "How to control the chat rounds?", faq6_a: "In the script source code header, you can find the DEFAULT_MAX_ROUNDS constant. The default is 1 (one round-trip). You can increase it as needed, and use DEFAULT_MAX_CHARS to limit word count to prevent spamming.",
       footer_text: "©2026 WeChat.ai · Developed by Cheng Zizi", footer_issue: "Issues", footer_log: "Changelog",
-      mock_u1: "Give me a slogan for 'WeChat.ai'.",
-      mock_d1: "How about 'Chat is WeChat.ai'? A catchy pun with warmth.",
-      mock_s1: "Nice. Let's add: Put Doubao and DeepSeek in one group chat.",
-      mock_d2: "This is a simulation. In real use, I will answer via Doubao.",
-      mock_s2: "To add, download and install the script via Tampermonkey to experience it.",
-      think_d: "Thinking", think_s: "Deep Thinking"
+      mock_u1: "Weekend trip to Hangzhou, any route recommendations?",
+      mock_d1: "I suggest West Lake and Lingyin Temple to enjoy the scenery.",
+      mock_s1: "To add, West Lake is crowded on weekends. I recommend renting a bike and going to Yanggong Causeway to avoid the crowds. Lingyin Temple, which Doubao mentioned, is also great and can be scheduled on the same day.",
+      chips: ["Weekend trip to Hangzhou...", "Write a summer coffee copy...", "Vue3 ref vs reactive?"],
+      think_d: "Thinking...", think_s: "Deep Thinking", think_done: "Thought for {t}s"
     }
   };
 
@@ -506,6 +518,7 @@
       if (i18n[lang][key]) el.setAttribute('placeholder', i18n[lang][key]);
     });
     
+    renderChips();
     initMockMessages();
   }
 
@@ -558,17 +571,37 @@
   const msgsContainer = document.getElementById('mock-messages');
   const inputEl = document.getElementById('mock-input');
   const sendBtn = document.getElementById('mock-send');
+  const chipsContainer = document.getElementById('mock-chips');
   let isProcessing = false;
 
-  function renderMsg(role, text) {
+  function renderChips() {
+    chipsContainer.innerHTML = '';
+    i18n[currentLang].chips.forEach(text => {
+      const chip = document.createElement('div');
+      chip.className = 'chip';
+      chip.textContent = text;
+      chip.onclick = () => {
+        if (isProcessing) return;
+        inputEl.value = text;
+        inputEl.dispatchEvent(new Event('input'));
+        handleSend();
+      };
+      chipsContainer.appendChild(chip);
+    });
+  }
+
+  function renderMsg(role, text, thinkTime) {
     const row = document.createElement('div');
     row.className = 'wechat-ai-row wechat-ai-' + role + (role === 'user' ? ' right' : '');
-    row.innerHTML = `
-      <div class="wechat-ai-avatar"></div>
-      <div class="wechat-ai-msg-content">
-        <div class="wechat-ai-bubble">${text}</div>
-      </div>
-    `;
+    
+    let html = `<div class="wechat-ai-avatar"></div><div class="wechat-ai-msg-content">`;
+    if (thinkTime !== undefined) {
+      const timeStr = i18n[currentLang].think_done.replace('{t}', thinkTime);
+      html += `<div class="mock-think-time">${timeStr}</div>`;
+    }
+    html += `<div class="wechat-ai-bubble">${text}</div></div>`;
+    
+    row.innerHTML = html;
     msgsContainer.appendChild(row);
     msgsContainer.scrollTop = msgsContainer.scrollHeight;
   }
@@ -577,8 +610,45 @@
     msgsContainer.innerHTML = '';
     const l = i18n[currentLang];
     renderMsg('user', l.mock_u1);
-    renderMsg('doubao', l.mock_d1);
-    renderMsg('deepseek', l.mock_s1);
+    renderMsg('doubao', l.mock_d1, 2);
+    renderMsg('deepseek', l.mock_s1, 3);
+  }
+
+  function showThinking(role) {
+    const isDoubao = role === 'doubao';
+    const row = document.createElement('div');
+    row.className = 'wechat-ai-row wechat-ai-' + role;
+    
+    let inner = '';
+    if (isDoubao) {
+      inner = `<span class="dot"><span class="hi">·</span><span>·</span><span>·</span></span>`;
+    } else {
+      const chars = i18n[currentLang].think_s.split('');
+      inner = chars.map((ch, i) => `<span class="wave" style="animation-delay:-${(i * 0.18).toFixed(2)}s">${ch}</span>`).join('');
+    }
+
+    row.innerHTML = `
+      <div class="wechat-ai-avatar"></div>
+      <div class="wechat-ai-msg-content">
+        <div class="mock-thinking-text">${inner}</div>
+      </div>
+    `;
+    msgsContainer.appendChild(row);
+    msgsContainer.scrollTop = msgsContainer.scrollHeight;
+
+    let timer;
+    if (isDoubao) {
+      let frame = 0;
+      const frames = [[1,0,0],[1,1,0],[1,1,1],[0,1,1],[0,0,1],[0,0,0]];
+      const dots = row.querySelectorAll('.dot span');
+      timer = setInterval(() => {
+        const f = frames[frame % 6];
+        dots.forEach((d, i) => d.classList.toggle('hi', !!f[i]));
+        frame++;
+      }, 300);
+    }
+    
+    return { row, timer };
   }
 
   function handleSend() {
@@ -591,54 +661,24 @@
     renderMsg('user', text);
     
     const l = i18n[currentLang];
-    const thinkRow1 = document.createElement('div');
-    thinkRow1.className = 'wechat-ai-row wechat-ai-doubao';
-    thinkRow1.innerHTML = `
-      <div class="wechat-ai-avatar"></div>
-      <div class="wechat-ai-msg-content">
-        <div class="mock-thinking-text">
-          <span class="dot"><span class="hi">·</span><span>·</span><span>·</span></span>
-        </div>
-      </div>
-    `;
-    msgsContainer.appendChild(thinkRow1);
-    msgsContainer.scrollTop = msgsContainer.scrollHeight;
-
-    let frame = 0;
-    const frames = [[1,0,0],[1,1,0],[1,1,1],[0,1,1],[0,0,1],[0,0,0]];
-    const dots = thinkRow1.querySelectorAll('.dot span');
-    const timer1 = setInterval(() => {
-      const f = frames[frame % 6];
-      dots.forEach((d, i) => d.classList.toggle('hi', !!f[i]));
-      frame++;
-    }, 300);
     
     setTimeout(() => {
-      clearInterval(timer1);
-      thinkRow1.remove();
-      renderMsg('doubao', l.mock_d2);
-      
-      const thinkRow2 = document.createElement('div');
-      thinkRow2.className = 'wechat-ai-row wechat-ai-deepseek';
-      
-      const chars = l.think_s.split('');
-      const waveHTML = chars.map((ch, i) => `<span class="wave" style="animation-delay:-${(i * 0.18).toFixed(2)}s">${ch}</span>`).join('');
-      
-      thinkRow2.innerHTML = `
-        <div class="wechat-ai-avatar"></div>
-        <div class="wechat-ai-msg-content">
-          <div class="mock-thinking-text">${waveHTML}</div>
-        </div>
-      `;
-      msgsContainer.appendChild(thinkRow2);
-      msgsContainer.scrollTop = msgsContainer.scrollHeight;
-      
+      const t1 = showThinking('doubao');
       setTimeout(() => {
-        thinkRow2.remove();
-        renderMsg('deepseek', l.mock_s2);
-        isProcessing = false;
-      }, 2000);
-    }, 1500);
+        clearInterval(t1.timer);
+        t1.row.remove();
+        renderMsg('doubao', l.mock_d1, 2);
+        
+        setTimeout(() => {
+          const t2 = showThinking('deepseek');
+          setTimeout(() => {
+            t2.row.remove();
+            renderMsg('deepseek', l.mock_s1, 3);
+            isProcessing = false;
+          }, 2000);
+        }, 800);
+      }, 1500);
+    }, 400);
   }
 
   inputEl.addEventListener('input', () => {
