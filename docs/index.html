@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>爱聊 (WeChat-ai) - 洽谈即爱聊</title>
-<meta name="description" content="让豆包与 DeepSeek 坐进同一个群聊，如老友洽谈。纯前端管理，无需 API Key，无需后端代理，无需部署。">
+<title>爱聊 (WeChat.ai) - 洽谈即爱聊</title>
+<meta name="description" content="让豆包与 DeepSeek 坐进同一个群聊。纯前端驱动，无需 API Key，无需部署服务器。">
 <style>
   :root {
     --accent: #07c160;
@@ -103,7 +103,6 @@
 
   #wechat-ai-ui {
     --fs-base: 13px;
-    --fs-sm: 12px;
     --ui-alpha: 1;
     --bg-msg: rgba(245,245,245, calc(0.4 + 0.6 * var(--ui-alpha)));
     --bg-input-area: rgba(255,255,255, calc(0.4 + 0.6 * var(--ui-alpha)));
@@ -172,16 +171,22 @@
   @keyframes mock-think-sweep { 0%, 100% { color: #cccccc; } 25%, 55% { color: #888888; } }
   [data-theme="dark"] @keyframes mock-think-sweep { 0%, 100% { color: #4d4d4d; } 25%, 55% { color: #b0b0b0; } }
 
-  .mock-chips { display: flex; gap: 8px; padding: 12px 16px 0; overflow-x: auto; scrollbar-width: none; }
-  .mock-chips::-webkit-scrollbar { display: none; }
+  .mock-input-area { position: relative; background: var(--bg-input-area); border-top: 1px solid var(--border); display: flex; flex-direction: column; }
+  
+  .mock-chips {
+    position: absolute; bottom: calc(100% + 8px); left: 16px;
+    display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
+    transition: opacity 0.3s, transform 0.3s; z-index: 10;
+  }
+  .mock-chips.hidden { opacity: 0; pointer-events: none; transform: translateY(10px); }
+  
   .chip { 
     background: var(--bg-bubble); border: 1px solid var(--border); color: var(--text-secondary);
-    padding: 6px 12px; border-radius: 16px; font-size: 12px; cursor: pointer; white-space: nowrap;
-    transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+    padding: 4px 10px; border-radius: 12px; font-size: 11px; cursor: pointer; white-space: nowrap;
+    transition: all 0.2s; box-shadow: 0 2px 6px rgba(0,0,0,0.04);
   }
-  .chip:hover { background: var(--bg-msg); color: var(--accent); border-color: var(--accent); }
+  .chip:hover { background: var(--bg-msg); color: var(--accent); border-color: var(--accent); transform: translateY(-1px); }
 
-  .mock-input-area { background: var(--bg-input-area); border-top: 1px solid var(--border); display: flex; flex-direction: column; }
   .mock-input-wrap { padding: 8px 16px; height: 100px; display: flex; flex-direction: column; }
   #mock-input { flex: 1; border: none; outline: none; resize: none; font-size: var(--fs-base); color: var(--text-main); font-family: inherit; line-height: 1.55; background: transparent; }
   #mock-input::placeholder { color: var(--text-tertiary); }
@@ -263,7 +268,7 @@
     .wechat-ai-avatar { width: 32px; height: 32px; }
     .wechat-ai-msg-content { max-width: calc(100% - 42px); }
     .wechat-ai-bubble { font-size: 13px; padding: 8px 12px; }
-    .mock-chips { padding: 8px 12px 0; }
+    .mock-chips { left: 12px; bottom: calc(100% + 4px); }
     .mock-input-wrap { height: 90px; padding: 8px 12px; }
     .mock-actions { padding: 0 12px 10px; }
     
@@ -353,8 +358,8 @@
     <div class="container">
       <div class="feature-block reverse reveal">
         <div class="feature-content">
-          <h3 data-i18n="f2_title">异构大模型协同工作</h3>
-          <p data-i18n="f2_desc">打破单体模型的思维局限。基于前端 DOM 监听与上下文转发机制，DeepSeek 与豆包能够在同一群聊内无缝接力。一个负责深度推演，一个负责灵感发散，为你提供多维度的思考视角。</p>
+          <h3 data-i18n="f2_title">异构大模型协同</h3>
+          <p data-i18n="f2_desc">打破单体 AI 的思维局限。基于前端 DOM 监听与上下文转发机制，DeepSeek 与豆包能够在同一群聊内无缝接力。一个负责深度推演，一个负责灵感发散，为你提供多维度的思考视角。</p>
         </div>
         <div class="feature-visual"><img src="https://github.com/user-attachments/assets/688cbee9-ad27-4bd9-b1eb-e369bd7af9e0" alt="Dual AI"></div>
       </div>
@@ -365,7 +370,7 @@
     <div class="container">
       <div class="feature-block reveal">
         <div class="feature-content">
-          <h3 data-i18n="f3_title">纯前端的极客方案</h3>
+          <h3 data-i18n="f3_title">纯前端极客方案</h3>
           <p data-i18n="f3_desc">零后端依赖，零 API 成本。不调用底层 SDK，不发送任何数据至第三方服务器。所有消息、配置与自定义样式，均通过 GM_setValue 保存在本地，捍卫你的绝对隐私。</p>
         </div>
         <div class="feature-visual"><img src="https://github.com/user-attachments/assets/03bd5e42-1978-4dc1-bb09-353c2027dc82" alt="Theme"></div>
@@ -387,7 +392,7 @@
         <div class="step-item">
           <div class="step-num">02</div>
           <h4 data-i18n="step2_title">下载并导入</h4>
-          <p data-i18n="step2_desc">下载爱聊原始脚本，复制其内容并粘贴到管理器的“添加新脚本”中保存。</p>
+          <p data-i18n="step2_desc">下载爱聊脚本文件，复制其内容并粘贴到管理器的“添加新脚本”中保存。</p>
           <a href="https://raw.githubusercontent.com/Code-ZiZi/wechat-ai/refs/heads/main/wechat-ai-pc.js" class="link-btn download-btn" data-url="https://raw.githubusercontent.com/Code-ZiZi/wechat-ai/refs/heads/main/wechat-ai-pc.js" data-i18n="step2_btn">下载脚本 →</a>
         </div>
         <div class="step-item">
@@ -409,24 +414,20 @@
           <div class="faq-answer-wrapper"><div class="faq-answer-inner"><p data-i18n="faq1_a">不需要。爱聊的核心机制是通过前端脚本模拟用户的真实输入与点击事件，直接操控网页版，因此完全免费。</p></div></div>
         </div>
         <div class="faq-item">
-          <button class="faq-question" data-i18n="faq2_q">我的聊天记录会被泄露吗？</button>
-          <div class="faq-answer-wrapper"><div class="faq-answer-inner"><p data-i18n="faq2_a">绝对不会。整个项目零后端依赖，所有对话记录、背景图与偏好设置均通过 GM_setValue 保存在你的浏览器本地。清除浏览器缓存或卸载脚本即彻底删除。</p></div></div>
+          <button class="faq-question" data-i18n="faq2_q">爱聊的核心原理是什么？</button>
+          <div class="faq-answer-wrapper"><div class="faq-answer-inner"><p data-i18n="faq2_a">爱聊完全运行在浏览器前端。它通过监听和模拟 DOM 事件，在豆包与 DeepSeek 的网页输入框之间进行自动化接力（模拟输入→发送→监听回复→转发），从而实现双 AI 的群聊循环，无需任何后端服务器介入。</p></div></div>
         </div>
         <div class="faq-item">
-          <button class="faq-question" data-i18n="faq3_q">向上滑动消息列表会发生什么？</button>
-          <div class="faq-answer-wrapper"><div class="faq-answer-inner"><p data-i18n="faq3_a">这会触发重载机制，刷新当前所在的豆包或 DeepSeek 网页。建议仅在双 AI 对话卡住、需要重新建立连接时使用。请注意这会导致未发送的草稿丢失。</p></div></div>
+          <button class="faq-question" data-i18n="faq3_q">支持哪些设备和浏览器？</button>
+          <div class="faq-answer-wrapper"><div class="faq-answer-inner"><p data-i18n="faq3_a">PC 端推荐使用 Edge 或 Chrome 浏览器并安装 Tampermonkey 插件；移动端（Android）推荐使用 Via 浏览器。不支持直接作为 Chrome 扩展安装，必须以 UserScript 形式导入。</p></div></div>
         </div>
         <div class="faq-item">
-          <button class="faq-question" data-i18n="faq4_q">支持哪些设备和浏览器？</button>
-          <div class="faq-answer-wrapper"><div class="faq-answer-inner"><p data-i18n="faq4_a">PC 端推荐使用 Edge 或 Chrome 浏览器并安装 Tampermonkey 插件；移动端（Android）推荐使用 Via 浏览器。不支持直接作为 Chrome 扩展安装，必须以 UserScript 形式导入。</p></div></div>
+          <button class="faq-question" data-i18n="faq4_q">使用此脚本会导致 AI 账号被封禁吗？</button>
+          <div class="faq-answer-wrapper"><div class="faq-answer-inner"><p data-i18n="faq4_a">原理是模拟真实用户的输入与点击事件，并非爬取后端接口，请求特征与普通用户操作无异。但仍建议控制使用频率，避免高频自动刷屏——这是所有自动化方案的通用建议。</p></div></div>
         </div>
         <div class="faq-item">
-          <button class="faq-question" data-i18n="faq5_q">使用此脚本会导致账号被封禁吗？</button>
-          <div class="faq-answer-wrapper"><div class="faq-answer-inner"><p data-i18n="faq5_a">原理是模拟真实用户的输入与点击事件，并非爬取后端接口，请求特征与普通用户操作无异。但仍建议控制使用频率，避免高频自动刷屏——这是所有自动化方案的通用建议。</p></div></div>
-        </div>
-        <div class="faq-item">
-          <button class="faq-question" data-i18n="faq6_q">如何控制 AI 对话的轮数？</button>
-          <div class="faq-answer-wrapper"><div class="faq-answer-inner"><p data-i18n="faq6_a">在脚本源码的头部常量配置中，可以找到 DEFAULT_MAX_ROUNDS 变量。默认值为 1，代表豆包与 DeepSeek 进行一次往返。你可以根据需求将其修改为更大的数字，同时也可通过 DEFAULT_MAX_CHARS 限制单次回复的字数以防刷屏。</p></div></div>
+          <button class="faq-question" data-i18n="faq5_q">如何控制 AI 对话的轮数？</button>
+          <div class="faq-answer-wrapper"><div class="faq-answer-inner"><p data-i18n="faq5_a">在脚本源码的头部常量配置中，可以找到 DEFAULT_MAX_ROUNDS 变量。默认值为 1，代表豆包与 DeepSeek 进行一次往返。你可以根据需求将其修改为更大的数字，同时也可通过 DEFAULT_MAX_CHARS 限制单次回复的字数以防刷屏。</p></div></div>
         </div>
       </div>
     </div>
@@ -460,16 +461,11 @@
       step3_title: "开启双模型", step3_desc: "打开豆包与 DeepSeek 的网页版，爱聊窗口将自动浮现，输入消息即可群聊。", step3_btn: "打开豆包 →",
       faq_title: "常见问题",
       faq1_q: "需要 API Key 或付费吗？", faq1_a: "不需要。爱聊的核心机制是通过前端脚本模拟用户的真实输入与点击事件，直接操控网页版，因此完全免费。",
-      faq2_q: "我的聊天记录会被上传吗？", faq2_a: "绝对不会。整个项目零后端依赖，所有对话记录、背景图与偏好设置均通过 GM_setValue 保存在你的浏览器本地。清除浏览器缓存或卸载脚本即彻底删除。",
-      faq3_q: "向上滑动消息列表会发生什么？", faq3_a: "这会触发重载机制，刷新当前所在的豆包或 DeepSeek 网页。建议仅在双 AI 对话卡住、需要重新建立连接时使用。请注意这会导致未发送的草稿丢失。",
-      faq4_q: "支持哪些设备和浏览器？", faq4_a: "PC 端推荐使用 Edge 或 Chrome 浏览器并安装 Tampermonkey 插件；移动端（Android）推荐使用 Via 浏览器。不支持直接作为 Chrome 扩展安装，必须以 UserScript 形式导入。",
-      faq5_q: "使用此脚本会导致 AI 账号被封禁吗？", faq5_a: "原理是模拟真实用户的输入与点击事件，并非爬取后端接口，请求特征与普通用户操作无异。但仍建议控制使用频率，避免高频自动刷屏——这是所有自动化方案的通用建议。",
-      faq6_q: "如何控制 AI 对话的轮数？", faq6_a: "在脚本源码的头部常量配置中，可以找到 DEFAULT_MAX_ROUNDS 变量。默认值为 1，代表豆包与 DeepSeek 进行一次往返。你可以根据需求将其修改为更大的数字，同时也可通过 DEFAULT_MAX_CHARS 限制单次回复的字数以防刷屏。",
+      faq2_q: "爱聊的核心原理是什么？", faq2_a: "爱聊完全运行在浏览器前端。它通过监听和模拟 DOM 事件，在豆包与 DeepSeek 的网页输入框之间进行自动化接力（模拟输入→发送→监听回复→转发），从而实现双 AI 的群聊循环，无需任何后端服务器介入。",
+      faq3_q: "支持哪些设备和浏览器？", faq3_a: "PC 端推荐使用 Edge 或 Chrome 浏览器并安装 Tampermonkey 插件；移动端（Android）推荐使用 Via 浏览器。不支持直接作为 Chrome 扩展安装，必须以 UserScript 形式导入。",
+      faq4_q: "使用此脚本会导致 AI 账号被封禁吗？", faq4_a: "原理是模拟真实用户的输入与点击事件，并非爬取后端接口，请求特征与普通用户操作无异。但仍建议控制使用频率，避免高频自动刷屏——这是所有自动化方案的通用建议。",
+      faq5_q: "如何控制 AI 对话的轮数？", faq5_a: "在脚本源码的头部常量配置中，可以找到 DEFAULT_MAX_ROUNDS 变量。默认值为 1，代表豆包与 DeepSeek 进行一次往返。你可以根据需求将其修改为更大的数字，同时也可通过 DEFAULT_MAX_CHARS 限制单次回复的字数以防刷屏。",
       footer_text: "©2026 爱聊 · 由 程滋滋 开发", footer_issue: "提交反馈", footer_log: "完整日志",
-      mock_u1: "周末去杭州玩，求推荐路线。",
-      mock_d1: "建议去西湖、灵隐寺，感受江南风光。",
-      mock_s1: "补充一下，周末西湖人很多，建议租个自行车，去杨公堤避开人流。刚豆包提到的灵隐寺也很不错，可以安排在同一天。",
-      chips: ["周末去杭州玩，求推荐路线。", "帮我写句夏天的咖啡文案。", "Vue3 的 ref 和 reactive 怎么选？"],
       think_d: "思考中...", think_s: "深度思考中", think_done: "已思考（用时 {t} 秒）"
     },
     en: {
@@ -487,17 +483,59 @@
       step3_title: "Open AI Tabs", step3_desc: "Open Doubao and DeepSeek, the window will appear automatically.", step3_btn: "Open Doubao →",
       faq_title: "FAQ",
       faq1_q: "Need API Key or paid?", faq1_a: "No. It simulates real user input and click events via frontend scripts to control the web interface directly, making it completely free.",
-      faq2_q: "Will my chat history be uploaded?", faq2_a: "Absolutely not. Zero backend dependency. All chat history, backgrounds, and preferences are saved locally in your browser via GM_setValue. Clearing cache or uninstalling the script deletes them completely.",
-      faq3_q: "What happens on swipe up?", faq3_a: "It triggers a reload mechanism, refreshing the current Doubao or DeepSeek page. Use only when the connection is stuck. Note that unsent drafts will be lost.",
-      faq4_q: "Supported devices and browsers?", faq4_a: "PC recommends Edge/Chrome with Tampermonkey; Mobile (Android) recommends Via Browser. It cannot be installed directly as a Chrome extension; it must be imported as a UserScript.",
-      faq5_q: "Will this script get my AI account banned?", faq5_a: "The mechanism simulates real user input and click events, not backend API scraping, so the request signature is identical to normal user behavior. However, it is recommended to control the frequency and avoid high-frequency automated spamming—a general advice for all automation solutions.",
-      faq6_q: "How to control the chat rounds?", faq6_a: "In the script source code header, you can find the DEFAULT_MAX_ROUNDS constant. The default is 1 (one round-trip). You can increase it as needed, and use DEFAULT_MAX_CHARS to limit word count to prevent spamming.",
+      faq2_q: "What is the core principle of WeChat.ai?", faq2_a: "It runs entirely on the frontend. By listening to and simulating DOM events, it automates the relay between Doubao and DeepSeek's web interfaces (simulate input -> send -> listen for reply -> forward), achieving a dual-AI group chat loop with zero backend involvement.",
+      faq3_q: "Supported devices and browsers?", faq3_a: "PC recommends Edge/Chrome with Tampermonkey; Mobile (Android) recommends Via Browser. It cannot be installed directly as a Chrome extension; it must be imported as a UserScript.",
+      faq4_q: "Will this script get my AI account banned?", faq4_a: "The mechanism simulates real user input and click events, not backend API scraping, so the request signature is identical to normal user behavior. However, it is recommended to control the frequency and avoid high-frequency automated spamming—a general advice for all automation solutions.",
+      faq5_q: "How to control the chat rounds?", faq5_a: "In the script source code header, you can find the DEFAULT_MAX_ROUNDS constant. The default is 1 (one round-trip). You can increase it as needed, and use DEFAULT_MAX_CHARS to limit word count to prevent spamming.",
       footer_text: "©2026 WeChat.ai · Developed by Cheng Zizi", footer_issue: "Issues", footer_log: "Changelog",
-      mock_u1: "Weekend trip to Hangzhou, any route recommendations?",
-      mock_d1: "I suggest West Lake and Lingyin Temple to enjoy the scenery.",
-      mock_s1: "To add, West Lake is crowded on weekends. I recommend renting a bike and going to Yanggong Causeway to avoid the crowds. Lingyin Temple, which Doubao mentioned, is also great and can be scheduled on the same day.",
-      chips: ["Weekend trip to Hangzhou...", "Write a summer coffee copy...", "Vue3 ref vs reactive?"],
       think_d: "Thinking...", think_s: "Deep Thinking", think_done: "Thought for {t}s"
+    }
+  };
+
+  const mockData = {
+    zh: [
+      {
+        q: "周末去武汉玩，求推荐路线。",
+        a1: "推荐去黄鹤楼、户部巷，感受江城风情。",
+        a2: "补充一下，周末黄鹤楼人很多，建议去东湖绿道骑车避开人流。刚豆包提到的户部巷可以晚上去吃夜宵。"
+      },
+      {
+        q: "帮我写句夏天的咖啡文案。",
+        a1: "夏日冰滴，唤醒沉闷的午后。",
+        a2: "可以更活泼点。结合豆包的冰滴，写：“多巴胺气泡水加满，把整个夏天喝进肚子里。”"
+      },
+      {
+        q: "Vue3 的 ref 和 reactive 怎么选？",
+        a1: "ref 适合基本类型，reactive 适合对象。",
+        a2: "补充下，Vue3 官方推荐统一用 ref。虽然要加 .value 有点烦，但心智负担小，reactive 一旦解构就会丢失响应式。豆包说的基本分类是对的。"
+      }
+    ],
+    en: [
+      {
+        q: "Weekend trip to Wuhan, any route recommendations?",
+        a1: "I suggest Yellow Crane Tower and Hubu Alley for local vibes.",
+        a2: "To add, the Tower is crowded on weekends. Rent a bike at East Lake Greenway to avoid crowds. Hubu Alley mentioned by Doubao is great for a night snack."
+      },
+      {
+        q: "Write a summer coffee copy.",
+        a1: "Summer cold brew, awaken your sleepy afternoon.",
+        a2: "Let's make it more lively. Combining Doubao's cold brew idea: 'Fill up with dopamine sparkling water, drink the whole summer.'"
+      },
+      {
+        q: "Vue3 ref vs reactive?",
+        a1: "ref for primitives, reactive for objects.",
+        a2: "To add, Vue3 officially recommends unified ref usage. Despite the .value hassle, it has less mental burden. reactive loses reactivity when destructured. Doubao's categorization is correct."
+      }
+    ],
+    default: {
+      zh: {
+        a1: "爱聊是一个运行在浏览器前端的用户脚本。你可以通过它，在一个悬浮窗里同时和豆包、DeepSeek 聊天。",
+        a2: "没错。它不需要任何 API Key，也不依赖后端服务器。通过模拟输入与监听回复，我和豆包能完美接力，为你提供双重视角。快去下载体验吧！"
+      },
+      en: {
+        a1: "WeChat.ai is a frontend userscript. With it, you can chat with Doubao and me in one floating window.",
+        a2: "Exactly. It needs no API Key and no backend. By simulating input and listening to replies, Doubao and I can seamlessly relay to provide dual perspectives. Go download and try it!"
+      }
     }
   };
 
@@ -576,15 +614,18 @@
 
   function renderChips() {
     chipsContainer.innerHTML = '';
-    i18n[currentLang].chips.forEach(text => {
+    chipsContainer.classList.remove('hidden');
+    const currentData = mockData[currentLang];
+    
+    currentData.forEach(item => {
       const chip = document.createElement('div');
       chip.className = 'chip';
-      chip.textContent = text;
+      chip.textContent = item.q;
       chip.onclick = () => {
         if (isProcessing) return;
-        inputEl.value = text;
+        inputEl.value = item.q;
         inputEl.dispatchEvent(new Event('input'));
-        handleSend();
+        handleSend(item);
       };
       chipsContainer.appendChild(chip);
     });
@@ -608,10 +649,10 @@
 
   function initMockMessages() {
     msgsContainer.innerHTML = '';
-    const l = i18n[currentLang];
-    renderMsg('user', l.mock_u1);
-    renderMsg('doubao', l.mock_d1, 2);
-    renderMsg('deepseek', l.mock_s1, 3);
+    const firstData = mockData[currentLang][0];
+    renderMsg('user', firstData.q);
+    renderMsg('doubao', firstData.a1, 2);
+    renderMsg('deepseek', firstData.a2, 3);
   }
 
   function showThinking(role) {
@@ -651,30 +692,38 @@
     return { row, timer };
   }
 
-  function handleSend() {
+  function handleSend(forceData) {
     const text = inputEl.value.trim();
     if (!text || isProcessing) return;
     
     isProcessing = true;
     inputEl.value = '';
     sendBtn.classList.remove('active');
+    chipsContainer.classList.add('hidden'); 
     renderMsg('user', text);
     
-    const l = i18n[currentLang];
+    let data = forceData;
+    if (!data) {
+      data = mockData[currentLang].find(d => d.q === text);
+      if (!data) {
+        data = mockData.default[currentLang];
+      }
+    }
     
     setTimeout(() => {
       const t1 = showThinking('doubao');
       setTimeout(() => {
         clearInterval(t1.timer);
         t1.row.remove();
-        renderMsg('doubao', l.mock_d1, 2);
+        renderMsg('doubao', data.a1, 2);
         
         setTimeout(() => {
           const t2 = showThinking('deepseek');
           setTimeout(() => {
             t2.row.remove();
-            renderMsg('deepseek', l.mock_s1, 3);
+            renderMsg('deepseek', data.a2, 3);
             isProcessing = false;
+            chipsContainer.classList.remove('hidden'); 
           }, 2000);
         }, 800);
       }, 1500);
