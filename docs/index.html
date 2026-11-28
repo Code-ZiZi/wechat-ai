@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>爱聊 (WeChat.ai) - 洽谈即爱聊</title>
-<meta name="description" content="让豆包与 DeepSeek 坐进同一个群聊。纯前端驱动，无需 API Key，无需部署服务器。">
+<meta name="description" content="让豆包与 DeepSeek 坐进同一个群聊。纯前端驱动，无需 API Key。">
 <style>
   :root {
     --accent: #07c160;
@@ -45,6 +45,7 @@
   .section-title { font-size: clamp(28px, 4vw, 40px); line-height: 1.2; margin-bottom: 16px; text-align: center; }
   .section-subtitle { font-size: 18px; color: var(--text-secondary); line-height: 1.6; max-width: 600px; margin: 0 auto 60px; text-align: center; }
 
+  /* 导航栏 */
   .nav {
     position: fixed; top: 0; left: 0; right: 0; height: var(--nav-h); z-index: 100;
     background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px);
@@ -78,6 +79,7 @@
   .btn-primary { background: var(--accent); color: #fff; border: none; }
   .btn-primary:hover { background: var(--accent-hover); }
 
+  /* 首屏 */
   .hero { padding-top: calc(var(--nav-h) + 60px); text-align: center; }
   .hero-title { font-size: clamp(36px, 6vw, 56px); line-height: 1.2; letter-spacing: -0.02em; margin-bottom: 20px; font-weight: 600; }
   .hero-title .accent { color: var(--accent); }
@@ -91,6 +93,7 @@
   }
   .badge svg { width: 14px; height: 14px; stroke: var(--accent); }
   
+  /* 演示区 */
   .demo-wrapper {
     margin-top: 40px; padding: 40px 20px 0;
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
@@ -137,30 +140,32 @@
   .mock-messages::-webkit-scrollbar { width: 6px; }
   .mock-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
+  /* 气泡动画与圆角 */
   .wechat-ai-row { 
     display: flex; align-items: flex-start; gap: 10px; max-width: 85%; 
-    animation: bubbleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    animation: bubbleIn 0.55s cubic-bezier(0.175, 0.885, 0.32, 1.1) both;
   }
   @keyframes bubbleIn { 
-    0% { opacity: 0; transform: translateY(16px) scale(0.9); } 
-    100% { opacity: 1; transform: translateY(0) scale(1); } 
+    0% { opacity: 0; transform: translateY(15px) scale(0.96); filter: blur(2px); } 
+    100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); } 
   }
   .wechat-ai-row.right { flex-direction: row-reverse; align-self: flex-end; }
 
-  .wechat-ai-avatar { width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0; background-size: cover; background-position: center; background-color: #ccc; display: grid; place-items: center; font-size: var(--fs-base); color: #fff; font-weight: bold; }
+  .wechat-ai-avatar { width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0; background-size: cover; background-position: center; background-color: #ccc; }
   .wechat-ai-user .wechat-ai-avatar { background-color: #e1e1e1; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23a0a0a0"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>'); background-size: 70%; background-repeat: no-repeat; }
   .wechat-ai-doubao .wechat-ai-avatar { background-image: url('https://lf-flow-web-cdn.doubao.com/obj/flow-doubao/doubao/chat/favicon-doubao.png'); }
   .wechat-ai-deepseek .wechat-ai-avatar { background-image: url('https://avatars.githubusercontent.com/u/148330874?v=4'); }
 
   .wechat-ai-msg-content { display: flex; flex-direction: column; gap: 4px; max-width: calc(100% - 48px); }
-  .wechat-ai-bubble { padding: 10px 14px; border-radius: 8px; line-height: 1.55; font-size: var(--fs-base); background: var(--bg-bubble); color: var(--text-bubble); box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
-  .wechat-ai-user .wechat-ai-bubble { background: var(--bg-bubble-user); color: var(--text-bubble-user); }
-  .wechat-ai-deepseek .wechat-ai-bubble { background: var(--bg-bubble-ds); color: var(--text-bubble-ds); }
+  .wechat-ai-bubble { padding: 10px 14px; border-radius: 16px; line-height: 1.55; font-size: var(--fs-base); background: var(--bg-bubble); color: var(--text-bubble); box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+  .wechat-ai-user .wechat-ai-bubble { background: var(--bg-bubble-user); color: var(--text-bubble-user); border-top-right-radius: 4px; }
+  .wechat-ai-doubao .wechat-ai-bubble { border-top-left-radius: 4px; }
+  .wechat-ai-deepseek .wechat-ai-bubble { background: var(--bg-bubble-ds); color: var(--text-bubble-ds); border-top-left-radius: 4px; }
 
-  .mock-think-time { font-size: 11px; color: var(--text-tertiary); margin-bottom: -2px; padding-left: 2px; animation: fadeIn 0.3s ease; }
+  .mock-think-time { font-size: 11px; color: var(--text-tertiary); margin-bottom: -2px; padding-left: 4px; animation: fadeIn 0.3s ease; }
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-  .mock-thinking-text { display: flex; align-items: center; padding: 8px 0; color: var(--text-secondary); }
+  .mock-thinking-text { display: flex; align-items: center; padding: 8px 4px; color: var(--text-secondary); }
   .mock-thinking-text .dot { font-size: 20px; line-height: 1; letter-spacing: 2px; }
   .mock-thinking-text .dot span { transition: color 0.28s ease; color: #cccccc; }
   .mock-thinking-text .dot span.hi { color: #888888; }
@@ -171,23 +176,25 @@
   @keyframes mock-think-sweep { 0%, 100% { color: #cccccc; } 25%, 55% { color: #888888; } }
   [data-theme="dark"] @keyframes mock-think-sweep { 0%, 100% { color: #4d4d4d; } 25%, 55% { color: #b0b0b0; } }
 
+  /* 输入区与快捷提问 */
   .mock-input-area { position: relative; background: var(--bg-input-area); border-top: 1px solid var(--border); display: flex; flex-direction: column; }
   
   .mock-chips {
-    position: absolute; bottom: calc(100% + 8px); left: 16px;
-    display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
-    transition: opacity 0.3s, transform 0.3s; z-index: 10;
+    padding: 10px 16px 0; display: flex; flex-wrap: wrap; gap: 8px;
+    transition: opacity 0.3s ease, max-height 0.3s ease, padding 0.3s ease;
+    max-height: 120px; opacity: 1; overflow: hidden;
   }
-  .mock-chips.hidden { opacity: 0; pointer-events: none; transform: translateY(10px); }
+  .mock-chips.hidden { max-height: 0; opacity: 0; padding-top: 0; padding-bottom: 0; pointer-events: none; }
   
   .chip { 
     background: var(--bg-bubble); border: 1px solid var(--border); color: var(--text-secondary);
-    padding: 4px 10px; border-radius: 12px; font-size: 11px; cursor: pointer; white-space: nowrap;
-    transition: all 0.2s; box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    padding: 6px 12px; border-radius: 16px; font-size: 12px; cursor: pointer; white-space: nowrap;
+    transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.02); outline: none;
+    -webkit-tap-highlight-color: transparent; user-select: none;
   }
-  .chip:hover { background: var(--bg-msg); color: var(--accent); border-color: var(--accent); transform: translateY(-1px); }
+  .chip:hover, .chip:focus { background: var(--bg-msg); color: var(--accent); border-color: var(--accent); transform: translateY(-1px); }
 
-  .mock-input-wrap { padding: 8px 16px; height: 100px; display: flex; flex-direction: column; }
+  .mock-input-wrap { padding: 8px 16px; height: 90px; display: flex; flex-direction: column; }
   #mock-input { flex: 1; border: none; outline: none; resize: none; font-size: var(--fs-base); color: var(--text-main); font-family: inherit; line-height: 1.55; background: transparent; }
   #mock-input::placeholder { color: var(--text-tertiary); }
   .mock-actions { display: flex; justify-content: flex-end; padding: 0 16px 12px; }
@@ -196,6 +203,7 @@
   #mock-send.active { background: var(--accent); color: #fff; cursor: pointer; }
   #mock-send.active:hover { background: var(--accent-hover); }
 
+  /* 其他区域 */
   .feature-block { display: flex; align-items: center; gap: 80px; padding: 60px 0; }
   .feature-block.reverse { flex-direction: row-reverse; }
   .feature-content { flex: 1; }
@@ -218,19 +226,11 @@
     font-size: 17px; font-weight: 500; color: var(--text-main); cursor: pointer; font-family: inherit;
     display: flex; justify-content: space-between; align-items: center;
   }
-  .faq-question::after { 
-    content: '+'; font-size: 24px; color: var(--text-tertiary); font-weight: 300; transition: transform 0.3s ease; 
-  }
-  .faq-item.active .faq-question::after { 
-    content: '+'; transform: rotate(45deg); color: var(--text-main);
-  }
-  .faq-answer-wrapper {
-    display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-  }
+  .faq-question::after { content: '+'; font-size: 24px; color: var(--text-tertiary); font-weight: 300; transition: transform 0.3s ease; }
+  .faq-item.active .faq-question::after { content: '+'; transform: rotate(45deg); color: var(--text-main); }
+  .faq-answer-wrapper { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
   .faq-item.active .faq-answer-wrapper { grid-template-rows: 1fr; }
-  .faq-answer-inner {
-    overflow: hidden; color: var(--text-secondary); line-height: 1.7; font-size: 15px;
-  }
+  .faq-answer-inner { overflow: hidden; color: var(--text-secondary); line-height: 1.7; font-size: 15px; }
   .faq-answer-inner p { margin: 0 0 24px 0; }
 
   .footer { border-top: 1px solid var(--border); padding: 40px 0; font-size: 14px; color: var(--text-secondary); }
@@ -241,6 +241,7 @@
   .reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.8s ease, transform 0.8s ease; }
   .reveal.in { opacity: 1; transform: translateY(0); }
 
+  /* 响应式 */
   @media (max-width: 900px) { 
     .feature-block, .feature-block.reverse { flex-direction: column; gap: 40px; padding: 30px 0; } 
     .feature-visual { width: 100%; padding: 20px; } 
@@ -249,12 +250,10 @@
   @media (max-width: 768px) {
     .nav-links { display: none; }
     .nav-inner { padding: 0 16px; }
-    .nav-actions { gap: 8px; }
-    .nav-actions .btn { padding: 0 14px; font-size: 13px; }
+    .nav-actions .lang-btn, .nav-actions #theme-toggle, .nav-actions .icon-btn[title="Source Code"] { display: none; } /* 隐藏次要图标 */
+    .nav-actions .btn { padding: 0 16px; font-size: 14px; height: 36px; }
     .brand { gap: 8px; font-size: 18px; }
     .brand-mark { width: 28px; height: 28px; font-size: 14px; }
-    .icon-btn { width: 28px; height: 28px; }
-    .icon-btn svg { width: 18px; height: 18px; }
     
     .section { padding: 60px 0; }
     .hero { padding-top: calc(var(--nav-h) + 40px); }
@@ -262,14 +261,16 @@
     .philosophy-badges { gap: 8px; margin-bottom: 24px; }
     .badge { padding: 4px 10px; font-size: 12px; }
     
-    .demo-wrapper { margin-top: 20px; padding: 20px 10px 0; min-height: 480px; border-radius: 20px 20px 0 0; }
-    #wechat-ai-ui { height: 440px; border-radius: 10px 10px 0 0; }
+    .demo-wrapper { margin-top: 20px; padding: 20px 10px 0; min-height: 520px; border-radius: 20px 20px 0 0; }
+    #wechat-ai-ui { height: 480px; border-radius: 10px 10px 0 0; }
     .mock-messages { padding: 16px 12px; gap: 12px; }
     .wechat-ai-avatar { width: 32px; height: 32px; }
     .wechat-ai-msg-content { max-width: calc(100% - 42px); }
-    .wechat-ai-bubble { font-size: 13px; padding: 8px 12px; }
-    .mock-chips { left: 12px; bottom: calc(100% + 4px); }
-    .mock-input-wrap { height: 90px; padding: 8px 12px; }
+    .wechat-ai-bubble { font-size: 13px; padding: 8px 12px; border-radius: 12px; }
+    
+    .mock-chips { padding: 8px 12px 0; gap: 6px; }
+    .chip { font-size: 11px; padding: 4px 10px; }
+    .mock-input-wrap { height: 80px; padding: 8px 12px; }
     .mock-actions { padding: 0 12px 10px; }
     
     .steps-grid { grid-template-columns: 1fr; gap: 30px; margin-top: 40px; }
@@ -494,48 +495,18 @@
 
   const mockData = {
     zh: [
-      {
-        q: "周末去武汉玩，求推荐路线。",
-        a1: "推荐去黄鹤楼、户部巷，感受江城风情。",
-        a2: "补充一下，周末黄鹤楼人很多，建议去东湖绿道骑车避开人流。刚豆包提到的户部巷可以晚上去吃夜宵。"
-      },
-      {
-        q: "帮我写句夏天的咖啡文案。",
-        a1: "夏日冰滴，唤醒沉闷的午后。",
-        a2: "可以更活泼点。结合豆包的冰滴，写：“多巴胺气泡水加满，把整个夏天喝进肚子里。”"
-      },
-      {
-        q: "Vue3 的 ref 和 reactive 怎么选？",
-        a1: "ref 适合基本类型，reactive 适合对象。",
-        a2: "补充下，Vue3 官方推荐统一用 ref。虽然要加 .value 有点烦，但心智负担小，reactive 一旦解构就会丢失响应式。豆包说的基本分类是对的。"
-      }
+      { q: "周末去武汉玩，求推荐路线。", a1: "推荐去黄鹤楼、户部巷，感受江城风情。", a2: "补充一下，周末黄鹤楼人很多，建议去东湖绿道骑车避开人流。刚豆包提到的户部巷可以晚上去吃夜宵。" },
+      { q: "帮我写句夏天的咖啡文案。", a1: "夏日冰滴，唤醒沉闷的午后。", a2: "可以更活泼点。结合豆包的冰滴，写：“多巴胺气泡水加满，把整个夏天喝进肚子里。”" },
+      { q: "Vue3 的 ref 和 reactive 怎么选？", a1: "ref 适合基本类型，reactive 适合对象。", a2: "补充下，Vue3 官方推荐统一用 ref。虽然要加 .value 有点烦，但心智负担小，reactive 一旦解构就会丢失响应式。豆包说的基本分类是对的。" }
     ],
     en: [
-      {
-        q: "Weekend trip to Wuhan, any route recommendations?",
-        a1: "I suggest Yellow Crane Tower and Hubu Alley for local vibes.",
-        a2: "To add, the Tower is crowded on weekends. Rent a bike at East Lake Greenway to avoid crowds. Hubu Alley mentioned by Doubao is great for a night snack."
-      },
-      {
-        q: "Write a summer coffee copy.",
-        a1: "Summer cold brew, awaken your sleepy afternoon.",
-        a2: "Let's make it more lively. Combining Doubao's cold brew idea: 'Fill up with dopamine sparkling water, drink the whole summer.'"
-      },
-      {
-        q: "Vue3 ref vs reactive?",
-        a1: "ref for primitives, reactive for objects.",
-        a2: "To add, Vue3 officially recommends unified ref usage. Despite the .value hassle, it has less mental burden. reactive loses reactivity when destructured. Doubao's categorization is correct."
-      }
+      { q: "Weekend trip to Wuhan, any route recommendations?", a1: "I suggest Yellow Crane Tower and Hubu Alley for local vibes.", a2: "To add, the Tower is crowded on weekends. Rent a bike at East Lake Greenway to avoid crowds. Hubu Alley mentioned by Doubao is great for a night snack." },
+      { q: "Write a summer coffee copy.", a1: "Summer cold brew, awaken your sleepy afternoon.", a2: "Let's make it more lively. Combining Doubao's cold brew idea: 'Fill up with dopamine sparkling water, drink the whole summer.'" },
+      { q: "Vue3 ref vs reactive?", a1: "ref for primitives, reactive for objects.", a2: "To add, Vue3 officially recommends unified ref usage. Despite the .value hassle, it has less mental burden. reactive loses reactivity when destructured. Doubao's categorization is correct." }
     ],
     default: {
-      zh: {
-        a1: "爱聊是一个运行在浏览器前端的用户脚本。你可以通过它，在一个悬浮窗里同时和豆包、DeepSeek 聊天。",
-        a2: "没错。它不需要任何 API Key，也不依赖后端服务器。通过模拟输入与监听回复，我和豆包能完美接力，为你提供双重视角。快去下载体验吧！"
-      },
-      en: {
-        a1: "WeChat.ai is a frontend userscript. With it, you can chat with Doubao and me in one floating window.",
-        a2: "Exactly. It needs no API Key and no backend. By simulating input and listening to replies, Doubao and I can seamlessly relay to provide dual perspectives. Go download and try it!"
-      }
+      zh: { a1: "爱聊是一个运行在浏览器前端的用户脚本。你可以通过它，在一个悬浮窗里同时和豆包、DeepSeek 聊天。", a2: "没错。它不需要任何 API Key，也不依赖后端服务器。通过模拟输入与监听回复，我和豆包能完美接力，为你提供双重视角。快去下载体验吧！" },
+      en: { a1: "WeChat.ai is a frontend userscript. With it, you can chat with Doubao and me in one floating window.", a2: "Exactly. It needs no API Key and no backend. By simulating input and listening to replies, Doubao and I can seamlessly relay to provide dual perspectives. Go download and try it!" }
     }
   };
 
@@ -621,8 +592,9 @@
       const chip = document.createElement('div');
       chip.className = 'chip';
       chip.textContent = item.q;
-      chip.onclick = () => {
+      chip.onclick = (e) => {
         if (isProcessing) return;
+        e.target.blur(); // 移除点击后的焦点状态，修复绿色边框残留
         inputEl.value = item.q;
         inputEl.dispatchEvent(new Event('input'));
         handleSend(item);
