@@ -133,7 +133,11 @@
     --border: rgba(0,0,0,0.55); background: rgba(26,26,26, 0.6); border-color: rgba(255,255,255,0.1);
   }
 
-  .mock-messages { flex: 1; overflow-y: auto; padding: 24px 20px; background-color: var(--bg-msg); display: flex; flex-direction: column; gap: 16px; scroll-behavior: smooth; }
+  .mock-messages { 
+    flex: 1; overflow-y: auto; padding: 24px 20px; background-color: var(--bg-msg); 
+    display: flex; flex-direction: column; gap: 16px; scroll-behavior: smooth;
+    transition: padding-bottom 0.3s ease;
+  }
   .mock-messages::-webkit-scrollbar { width: 6px; }
   .mock-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
@@ -153,9 +157,10 @@
   .wechat-ai-deepseek .wechat-ai-avatar { background-image: url('https://avatars.githubusercontent.com/u/148330874?v=4'); }
 
   .wechat-ai-msg-content { display: flex; flex-direction: column; gap: 4px; max-width: calc(100% - 48px); }
-  .wechat-ai-bubble { padding: 10px 14px; border-radius: 12px; line-height: 1.55; font-size: var(--fs-base); background: var(--bg-bubble); color: var(--text-bubble); box-shadow: 0 2px 6px rgba(0,0,0,0.04); }
-  .wechat-ai-user .wechat-ai-bubble { background: var(--bg-bubble-user); color: var(--text-bubble-user); }
-  .wechat-ai-deepseek .wechat-ai-bubble { background: var(--bg-bubble-ds); color: var(--text-bubble-ds); }
+  .wechat-ai-bubble { padding: 10px 14px; border-radius: 16px; line-height: 1.55; font-size: var(--fs-base); background: var(--bg-bubble); color: var(--text-bubble); box-shadow: 0 2px 6px rgba(0,0,0,0.04); }
+  .wechat-ai-user .wechat-ai-bubble { background: var(--bg-bubble-user); color: var(--text-bubble-user); border-top-right-radius: 4px; }
+  .wechat-ai-doubao .wechat-ai-bubble { border-top-left-radius: 4px; }
+  .wechat-ai-deepseek .wechat-ai-bubble { background: var(--bg-bubble-ds); color: var(--text-bubble-ds); border-top-left-radius: 4px; }
 
   .mock-think-time { font-size: 11px; color: var(--text-tertiary); margin-bottom: -2px; padding-left: 2px; animation: fadeIn 0.3s ease; }
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -174,7 +179,7 @@
   .mock-input-area { position: relative; background: var(--bg-input-area); border-top: 1px solid var(--border); display: flex; flex-direction: column; }
   
   .mock-chips {
-    position: absolute; bottom: calc(100% + 8px); left: 16px;
+    position: absolute; bottom: calc(100% + 12px); left: 16px;
     display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
     transition: opacity 0.3s, transform 0.3s; z-index: 10;
   }
@@ -187,8 +192,7 @@
   }
   .chip:hover { background: var(--bg-msg); color: var(--accent); border-color: var(--accent); transform: scale(1.02); }
   .chip:active { transform: scale(0.95); }
-  .chip.active-chip { background: var(--accent); color: #fff; border-color: var(--accent); }
-
+  
   .mock-input-wrap { padding: 8px 16px; height: 100px; display: flex; flex-direction: column; }
   #mock-input { flex: 1; border: none; outline: none; resize: none; font-size: var(--fs-base); color: var(--text-main); font-family: inherit; line-height: 1.55; background: transparent; }
   #mock-input::placeholder { color: var(--text-tertiary); }
@@ -270,9 +274,9 @@
     .mock-messages { padding: 16px 12px; gap: 14px; }
     .wechat-ai-avatar { width: 34px; height: 34px; }
     .wechat-ai-msg-content { max-width: calc(100% - 44px); }
-    .wechat-ai-bubble { font-size: 13px; padding: 10px 12px; border-radius: 10px; }
+    .wechat-ai-bubble { font-size: 13px; padding: 10px 12px; border-radius: 12px; }
     
-    .mock-chips { left: 12px; bottom: calc(100% + 4px); gap: 4px; }
+    .mock-chips { left: 12px; bottom: calc(100% + 6px); gap: 4px; }
     .chip { padding: 4px 10px; font-size: 11px; }
     .mock-input-wrap { height: 90px; padding: 8px 12px; }
     .mock-actions { padding: 0 12px 10px; }
@@ -630,6 +634,8 @@
   function renderChips() {
     chipsContainer.innerHTML = '';
     chipsContainer.classList.remove('hidden');
+    msgsContainer.style.paddingBottom = '130px'; 
+    
     const currentData = mockData[currentLang];
     
     currentData.forEach(item => {
@@ -638,8 +644,6 @@
       chip.textContent = item.q;
       chip.onclick = () => {
         if (isProcessing) return;
-        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active-chip'));
-        chip.classList.add('active-chip');
         inputEl.value = item.q;
         inputEl.dispatchEvent(new Event('input'));
         handleSend(item);
@@ -718,7 +722,7 @@
     inputEl.value = '';
     sendBtn.classList.remove('active');
     chipsContainer.classList.add('hidden'); 
-    
+    msgsContainer.style.paddingBottom = '24px'; 
     document.querySelectorAll('.chip').forEach(c => c.classList.remove('active-chip'));
 
     renderMsg('user', text);
@@ -744,7 +748,13 @@
             t2.row.remove();
             renderMsg('deepseek', data.a2, 3);
             isProcessing = false;
+            
             chipsContainer.classList.remove('hidden'); 
+            msgsContainer.style.paddingBottom = '130px'; 
+            document.querySelectorAll('.chip').forEach(c => c.classList.remove('active-chip'));
+            setTimeout(() => {
+              msgsContainer.scrollTop = msgsContainer.scrollHeight;
+            }, 50);
           }, 2000);
         }, 800);
       }, 1500);
